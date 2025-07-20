@@ -7,13 +7,5 @@
     "src/app/api/**/*.ts": {
       "maxDuration": 30
     }
-  },
-  "env": {
-    "POSTGRES_PRISMA_URL": "@database-url",
-    "POSTGRES_URL_NON_POOLING": "@database-url",
-    "POSTGRES_USER": "@database-user",
-    "POSTGRES_HOST": "@database-host",
-    "POSTGRES_PASSWORD": "@database-password",
-    "POSTGRES_DATABASE": "@database-name"
   }
 } 
