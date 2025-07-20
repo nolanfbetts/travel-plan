@@ -128,7 +128,22 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'overview' | 'itinerary' | 'calendar' | 'costs' | 'tasks' | 'polls' | 'invite'>('overview')
   const [tripId, setTripId] = useState<string | null>(null)
-  const [invitations, setInvitations] = useState<any[]>([])
+  const [invitations, setInvitations] = useState<Array<{
+    id: string;
+    receiverEmail: string;
+    status: string;
+    createdAt: string;
+    receiver: {
+      id: string;
+      name: string;
+      email: string;
+    } | null;
+    sender: {
+      id: string;
+      name: string;
+      email: string;
+    };
+  }>>([])
   const [inviteEmail, setInviteEmail] = useState('')
   const [isInviting, setIsInviting] = useState(false)
   const [showTaskForm, setShowTaskForm] = useState(false)
@@ -441,7 +456,7 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
               ].map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as 'overview' | 'itinerary' | 'calendar' | 'costs' | 'tasks' | 'polls' | 'invite')}
                   className={`py-2 px-1 border-b-2 font-medium text-sm ${
                     activeTab === tab.id
                       ? 'border-blue-500 text-blue-600'

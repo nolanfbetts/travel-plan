@@ -154,7 +154,7 @@ export default function HomePage() {
               Everything you need to plan the perfect trip
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              From initial planning to expense tracking, we've got you covered every step of the way.
+              From initial planning to expense tracking, we&apos;ve got you covered every step of the way.
             </p>
           </div>
           
@@ -294,8 +294,8 @@ export default function HomePage() {
                 </div>
               </div>
               <p className="text-gray-600 mb-6">
-                "Planning our family trip to Japan was so much easier with TravelPlan. Everyone could contribute 
-                ideas and we kept track of all our expenses perfectly. Highly recommend!"
+                &ldquo;Planning our family trip to Japan was so much easier with TravelPlan. Everyone could contribute 
+                ideas and we kept track of all our expenses perfectly. Highly recommend!&rdquo;
               </p>
               <div className="flex items-center">
                 <div className="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center mr-4">
@@ -319,8 +319,8 @@ export default function HomePage() {
                 </div>
               </div>
               <p className="text-gray-600 mb-6">
-                "As a frequent business traveler, I love how easy it is to split costs with colleagues. 
-                The expense tracking feature saves me hours of work every month."
+                &ldquo;As a frequent business traveler, I love how easy it is to split costs with colleagues. 
+                The expense tracking feature saves me hours of work every month.&rdquo;
               </p>
               <div className="flex items-center">
                 <div className="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center mr-4">
@@ -344,8 +344,8 @@ export default function HomePage() {
                 </div>
               </div>
               <p className="text-gray-600 mb-6">
-                "Planning our backpacking trip through Europe was a breeze. The itinerary feature helped us 
-                stay organized and never miss a train or reservation. Amazing app!"
+                &ldquo;Planning our backpacking trip through Europe was a breeze. The itinerary feature helped us 
+                stay organized and never miss a train or reservation. Amazing app!&rdquo;
               </p>
               <div className="flex items-center">
                 <div className="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center mr-4">
@@ -369,7 +369,7 @@ export default function HomePage() {
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
             Join thousands of travelers who are already planning amazing trips together. 
-            It's free to get started!
+            It&apos;s free to get started!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/auth/signup">

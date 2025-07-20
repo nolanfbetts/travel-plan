@@ -153,7 +153,13 @@ export async function PUT(
     }
 
     // Validate input
-    const updateData: any = {}
+    const updateData: {
+      question?: string;
+      description?: string | null;
+      options?: string[];
+      expiresAt?: Date;
+      status?: 'ACTIVE' | 'CLOSED' | 'EXPIRED';
+    } = {}
     
     if (question?.trim()) {
       updateData.question = question.trim()
