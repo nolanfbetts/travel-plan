@@ -64,4 +64,100 @@ export async function GET(
       { status: 500 }
     )
   }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { id } = await params
+
+    // Check if trip exists and user is the creator
+    const trip = await prisma.trip.findFirst({
+      where: {
+        id: id,
+        creatorId: session.user.id
+      }
+    })
+
+    if (!trip) {
+      return NextResponse.json({ error: "Trip not found or you don't have permission to delete it" }, { status: 404 })
+    }
+
+    // Delete the trip and all related data in a transaction
+    await prisma.$transaction(async (tx) => {
+      // Delete votes for polls in this trip
+      await tx.vote.deleteMany({
+        where: {
+          poll: {
+            tripId: id
+          }
+        }
+      })
+
+      // Delete polls
+      await tx.poll.deleteMany({
+        where: {
+          tripId: id
+        }
+      })
+
+      // Delete tasks
+      await tx.task.deleteMany({
+        where: {
+          tripId: id
+        }
+      })
+
+      // Delete costs
+      await tx.cost.deleteMany({
+        where: {
+          tripId: id
+        }
+      })
+
+      // Delete itinerary items
+      await tx.itineraryItem.deleteMany({
+        where: {
+          tripId: id
+        }
+      })
+
+      // Delete trip invitations
+      await tx.tripInvite.deleteMany({
+        where: {
+          tripId: id
+        }
+      })
+
+      // Delete trip members
+      await tx.tripMember.deleteMany({
+        where: {
+          tripId: id
+        }
+      })
+
+      // Finally, delete the trip
+      await tx.trip.delete({
+        where: {
+          id: id
+        }
+      })
+    })
+
+    return NextResponse.json({ message: "Trip deleted successfully" })
+  } catch (error) {
+    console.error("Error deleting trip:", error)
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    )
+  }
 } 

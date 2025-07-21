@@ -337,6 +337,29 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
     }
   }
 
+  const handleDeleteTrip = async () => {
+    if (!confirm('Are you sure you want to delete this trip? This action cannot be undone and will delete all trip data including items, costs, tasks, and polls.')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/trips/${tripId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        alert('Trip deleted successfully')
+        router.push('/dashboard')
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to delete trip')
+      }
+    } catch (error) {
+      console.error('Error deleting trip:', error)
+      alert('An error occurred while deleting the trip')
+    }
+  }
+
   const getCategoryIcon = (type: string) => {
     switch (type.toLowerCase()) {
       case 'flight':
@@ -469,6 +492,19 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                     Logout
                   </Button>
                 </div>
+                {/* Delete Trip Button - Only show for trip creator */}
+                {trip && trip.creator.id === session?.user?.id && (
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button 
+                      variant="outline" 
+                      onClick={handleDeleteTrip}
+                      disabled={!tripId}
+                      className="w-full sm:w-auto bg-red-50 border-red-200 text-red-700 hover:bg-red-100 hover:border-red-300"
+                    >
+                      Delete Trip
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -549,6 +585,20 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                         <span className="mr-3 text-lg">🚪</span>
                         <span className="text-base">Logout</span>
                       </Button>
+                      {/* Delete Trip Button - Only show for trip creator */}
+                      {trip && trip.creator.id === session?.user?.id && (
+                        <Button 
+                          variant="outline" 
+                          onClick={() => {
+                            handleDeleteTrip()
+                            setIsMobileMenuOpen(false)
+                          }}
+                          className="w-full justify-start h-12 bg-red-50 border-red-200 text-red-700 hover:bg-red-100 hover:border-red-300"
+                        >
+                          <span className="mr-3 text-lg">🗑️</span>
+                          <span className="text-base">Delete Trip</span>
+                        </Button>
+                      )}
                     </div>
                   </div>
                 )}
