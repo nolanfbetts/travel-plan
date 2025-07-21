@@ -79,13 +79,13 @@ export default function CookieConsent() {
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 We use cookies to enhance your experience
               </h3>
-              <p className="text-sm text-gray-600 mb-4">
-                We use cookies to help our website work properly, improve your experience, and understand how you use our site. 
-                By clicking "Accept All", you consent to our use of cookies. 
-                <Link href="/cookie-policy.html" className="text-blue-600 hover:underline ml-1">
-                  Learn more
-                </Link>
-              </p>
+                              <p className="text-sm text-gray-600 mb-4">
+                  We use cookies to help our website work properly, improve your experience, and understand how you use our site. 
+                  By clicking &ldquo;Accept All&rdquo;, you consent to our use of cookies. 
+                  <Link href="/cookie-policy.html" className="text-blue-600 hover:underline ml-1">
+                    Learn more
+                  </Link>
+                </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Button

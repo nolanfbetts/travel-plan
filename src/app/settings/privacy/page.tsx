@@ -180,7 +180,7 @@ export default function PrivacySettingsPage() {
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Delete Your Account</h2>
               <p className="text-gray-600 mb-4">
                 This action will permanently delete your account and all associated data. 
-                This includes all your trips, costs, tasks, polls, and any other data you've created.
+                This includes all your trips, costs, tasks, polls, and any other data you&apos;ve created.
                 This action cannot be undone.
               </p>
               
