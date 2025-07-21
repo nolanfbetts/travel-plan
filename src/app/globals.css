@@ -23,4 +23,116 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 640px) {
+  /* Improve touch targets */
+  button, 
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Improve form inputs */
+  input, 
+  select, 
+  textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  /* Better scrolling */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Improve spacing on mobile */
+  .space-y-4 > * + * {
+    margin-top: 1rem;
+  }
+  
+  .space-y-6 > * + * {
+    margin-top: 1.5rem;
+  }
+  
+  /* Better button spacing */
+  .gap-2 {
+    gap: 0.5rem;
+  }
+  
+  .gap-3 {
+    gap: 0.75rem;
+  }
+  
+  .gap-4 {
+    gap: 1rem;
+  }
+}
+
+/* Prevent horizontal scroll on mobile */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Improve focus states for accessibility */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Smooth transitions for mobile menu */
+.mobile-menu-container {
+  position: relative;
+}
+
+.mobile-menu-container button {
+  transition: all 0.2s ease-in-out;
+}
+
+.mobile-menu-container button:hover {
+  transform: scale(1.05);
+}
+
+/* Ensure mobile menu dropdown is properly positioned */
+.mobile-menu-dropdown {
+  animation: slideDown 0.2s ease-out;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+/* Improve mobile menu positioning on very small screens */
+@media (max-width: 480px) {
+  .mobile-menu-dropdown {
+    right: 0;
+    width: 280px !important;
+    max-width: calc(100vw - 2rem);
+  }
+}
+
+/* Ensure menu doesn't go off-screen on small devices */
+@media (max-width: 360px) {
+  .mobile-menu-dropdown {
+    right: -1rem;
+    width: calc(100vw - 1rem) !important;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

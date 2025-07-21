@@ -89,29 +89,30 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
                 Welcome back, {session?.user?.name || "Traveler"}!
               </h1>
               <p className="mt-2 text-gray-600">
                 Manage your trips and plan your next adventure.
               </p>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
               <Link href="/trips/new">
-                <Button>
+                <Button className="w-full sm:w-auto">
                   Create New Trip
                 </Button>
               </Link>
               <Link href="/invitations">
-                <Button variant="outline">
+                <Button variant="outline" className="w-full sm:w-auto">
                   Invitations {invitations.length > 0 && `(${invitations.length})`}
                 </Button>
               </Link>
               <Button 
                 variant="outline" 
                 onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+                className="w-full sm:w-auto"
               >
                 Logout
               </Button>
@@ -120,7 +121,7 @@ export default function DashboardPage() {
 
           {invitations.length > 0 && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <h3 className="text-sm font-medium text-blue-900">
                     You have {invitations.length} pending invitation{invitations.length > 1 ? 's' : ''}!
@@ -133,7 +134,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 <Link href="/invitations">
-                  <Button variant="outline" size="sm" className="border-blue-300 text-blue-700 hover:bg-blue-100">
+                  <Button variant="outline" size="sm" className="border-blue-300 text-blue-700 hover:bg-blue-100 w-full sm:w-auto">
                     View Invitations
                   </Button>
                 </Link>

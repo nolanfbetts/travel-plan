@@ -443,67 +443,84 @@ export default function Calendar({ items, tripId, tripStartDate, tripEndDate }: 
   return (
     <div className="bg-white shadow rounded-lg">
       {/* Calendar Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-medium text-gray-900">Calendar View</h3>
-          <div className="flex items-center space-x-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={goToTripStart}
-              disabled={!tripStartDate}
-              className="text-xs"
-            >
-              Trip Start
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={goToToday}
-              className="text-xs"
-            >
-              Today
-            </Button>
+      <div className="border-b border-gray-200 p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center justify-between sm:justify-start gap-4">
+            <h3 className="text-lg font-medium text-gray-900">Calendar</h3>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={goToPrevious}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                title="Previous"
+              >
+                ←
+              </button>
+              <button
+                onClick={goToNext}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                title="Next"
+              >
+                →
+              </button>
+            </div>
           </div>
-        </div>
-        
-        {/* View Toggle */}
-        <div className="flex items-center justify-between mt-4">
-          <div className="flex space-x-1">
-            {(['month', 'week', 'day'] as ViewType[]).map((view) => (
-              <Button
-                key={view}
-                variant={viewType === view ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setViewType(view)}
-                className={`text-xs capitalize ${
-                  viewType === view 
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                    : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-300'
+          
+          <div className="flex flex-col sm:flex-row items-center gap-2">
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={goToToday}
+                className="px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors"
+              >
+                Today
+              </button>
+              {tripStartDate && (
+                <button
+                  onClick={goToTripStart}
+                  className="px-3 py-1 text-sm text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                >
+                  Trip Start
+                </button>
+              )}
+            </div>
+            
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => setViewType('month')}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  viewType === 'month'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-600 hover:text-gray-700 hover:bg-gray-100'
                 }`}
               >
-                {view}
-              </Button>
-            ))}
+                Month
+              </button>
+              <button
+                onClick={() => setViewType('week')}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  viewType === 'week'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-600 hover:text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Week
+              </button>
+              <button
+                onClick={() => setViewType('day')}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  viewType === 'day'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-600 hover:text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Day
+              </button>
+            </div>
           </div>
         </div>
         
-        {/* Navigation */}
-        <div className="flex items-center justify-between mt-4">
-          <Button variant="outline" size="sm" onClick={goToPrevious}>
-            ← Previous
-          </Button>
-          <div className="text-center">
-            <h2 className="text-xl font-semibold text-gray-900">
-              {getViewTitle()}
-            </h2>
-            <p className="text-sm text-gray-500 mt-1">
-              {getEventCount()} event{getEventCount() !== 1 ? 's' : ''}
-            </p>
-          </div>
-          <Button variant="outline" size="sm" onClick={goToNext}>
-            Next →
-          </Button>
+        <div className="mt-4 text-center">
+          <h2 className="text-xl font-semibold text-gray-900">{getViewTitle()}</h2>
+          <p className="text-sm text-gray-500 mt-1">{getEventCount()} events</p>
         </div>
       </div>
 

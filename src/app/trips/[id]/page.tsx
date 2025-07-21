@@ -151,22 +151,41 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
   const [polls, setPolls] = useState<Poll[]>([])
   const [showPollForm, setShowPollForm] = useState(false)
   const [editingPoll, setEditingPoll] = useState<Poll | null>(null)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     const loadParams = async () => {
-      const { id } = await params
-      setTripId(id)
+      const resolvedParams = await params
+      setTripId(resolvedParams.id)
     }
     loadParams()
   }, [params])
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/signin")
-    } else if (status === "authenticated" && tripId) {
+    if (tripId) {
       fetchTripData()
     }
-  }, [status, tripId])
+  }, [tripId])
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element
+      if (isMobileMenuOpen && !target.closest('.mobile-menu-container')) {
+        setIsMobileMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isMobileMenuOpen])
+
+  // Close mobile menu when switching tabs
+  useEffect(() => {
+    setIsMobileMenuOpen(false)
+  }, [activeTab])
 
   const fetchTripData = async () => {
     if (!tripId) return
@@ -382,16 +401,16 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
         <div className="px-4 py-6 sm:px-0">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div>
                 <Link href="/dashboard" className="text-blue-600 hover:text-blue-500 mb-4 inline-block">
                   ← Back to Dashboard
                 </Link>
-                <h1 className="text-3xl font-bold text-gray-900">{trip.name}</h1>
+                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">{trip.name}</h1>
                 {trip.description && (
                   <p className="mt-2 text-gray-600">{trip.description}</p>
                 )}
-                <div className="mt-4 flex items-center space-x-6 text-sm text-gray-500">
+                <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm text-gray-500">
                   {trip.startDate && trip.endDate && (
                     <span>
                       {formatDate(trip.startDate)} - {formatDate(trip.endDate)}
@@ -400,51 +419,146 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                   <span>Created by {trip.creator.name}</span>
                 </div>
               </div>
-              <div className="flex space-x-3">
-                <Link href={tripId ? `/trips/${tripId}/items/new` : '#'}>
-                  <Button disabled={!tripId}>
-                    Add Item
+              
+              {/* Desktop Action Buttons */}
+              <div className="hidden lg:flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Link href={tripId ? `/trips/${tripId}/items/new` : '#'}>
+                    <Button disabled={!tripId} className="w-full sm:w-auto">
+                      Add Item
+                    </Button>
+                  </Link>
+                  <Link href={tripId ? `/trips/${tripId}/costs/new` : '#'}>
+                    <Button variant="outline" disabled={!tripId} className="w-full sm:w-auto">
+                      Add Cost
+                    </Button>
+                  </Link>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setActiveTab('tasks')}
+                    disabled={!tripId}
+                    className="w-full sm:w-auto"
+                  >
+                    Add Task
                   </Button>
-                </Link>
-                <Link href={tripId ? `/trips/${tripId}/costs/new` : '#'}>
-                  <Button variant="outline" disabled={!tripId}>
-                    Add Cost
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setActiveTab('polls')}
+                    disabled={!tripId}
+                    className="w-full sm:w-auto"
+                  >
+                    Create Poll
                   </Button>
-                </Link>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setActiveTab('tasks')}
-                  disabled={!tripId}
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setActiveTab('invite')}
+                    disabled={!tripId}
+                    className="w-full sm:w-auto"
+                  >
+                    Invite People
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+                    className="w-full sm:w-auto"
+                  >
+                    Logout
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Menu Button - Positioned at top right */}
+            <div className="lg:hidden flex justify-end mt-4">
+              <div className="mobile-menu-container relative">
+                <button
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  aria-label="Toggle menu"
                 >
-                  Add Task
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setActiveTab('polls')}
-                  disabled={!tripId}
-                >
-                  Create Poll
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setActiveTab('invite')}
-                  disabled={!tripId}
-                >
-                  Invite People
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => signOut({ callbackUrl: '/auth/signin' })}
-                >
-                  Logout
-                </Button>
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {isMobileMenuOpen ? (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    ) : (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    )}
+                  </svg>
+                </button>
+
+                {/* Mobile Menu Dropdown */}
+                {isMobileMenuOpen && (
+                  <div className="absolute top-full right-0 mt-2 w-72 sm:w-80 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50 mobile-menu-dropdown">
+                    <div className="space-y-2">
+                      <Link href={tripId ? `/trips/${tripId}/items/new` : '#'}>
+                        <Button disabled={!tripId} className="w-full justify-start h-12">
+                          <span className="mr-3 text-lg">📝</span>
+                          <span className="text-base">Add Item</span>
+                        </Button>
+                      </Link>
+                      <Link href={tripId ? `/trips/${tripId}/costs/new` : '#'}>
+                        <Button variant="outline" disabled={!tripId} className="w-full justify-start h-12">
+                          <span className="mr-3 text-lg">💰</span>
+                          <span className="text-base">Add Cost</span>
+                        </Button>
+                      </Link>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setActiveTab('tasks')
+                          setIsMobileMenuOpen(false)
+                        }}
+                        disabled={!tripId}
+                        className="w-full justify-start h-12"
+                      >
+                        <span className="mr-3 text-lg">✅</span>
+                        <span className="text-base">Add Task</span>
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setActiveTab('polls')
+                          setIsMobileMenuOpen(false)
+                        }}
+                        disabled={!tripId}
+                        className="w-full justify-start h-12"
+                      >
+                        <span className="mr-3 text-lg">📊</span>
+                        <span className="text-base">Create Poll</span>
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setActiveTab('invite')
+                          setIsMobileMenuOpen(false)
+                        }}
+                        disabled={!tripId}
+                        className="w-full justify-start h-12"
+                      >
+                        <span className="mr-3 text-lg">👥</span>
+                        <span className="text-base">Invite People</span>
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+                        className="w-full justify-start h-12"
+                      >
+                        <span className="mr-3 text-lg">🚪</span>
+                        <span className="text-base">Logout</span>
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
           {/* Tabs */}
           <div className="border-b border-gray-200 mb-8">
-            <nav className="-mb-px flex space-x-8">
+            <nav className="-mb-px flex space-x-8 overflow-x-auto pb-2">
               {[
                 { id: 'overview', label: 'Overview' },
                 { id: 'itinerary', label: 'Itinerary' },
@@ -457,7 +571,7 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as 'overview' | 'itinerary' | 'calendar' | 'costs' | 'tasks' | 'polls' | 'invite')}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                     activeTab === tab.id
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'

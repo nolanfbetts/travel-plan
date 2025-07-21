@@ -223,31 +223,32 @@ export default function TaskCard({
 
       {/* Details */}
       <div className="space-y-2 text-sm text-gray-500 mb-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
           <span>Created by: {task.createdBy.name}</span>
           <span>{new Date(task.createdAt).toLocaleDateString()}</span>
         </div>
         {task.assignedTo && (
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
             <span>Assigned to: {task.assignedTo.name}</span>
           </div>
         )}
         {task.dueDate && (
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
             <span>Due: {new Date(task.dueDate).toLocaleDateString()}</span>
           </div>
         )}
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-start">
-        <div className="flex space-x-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           {task.status !== 'COMPLETED' && (
             <Button
               size="sm"
               variant="outline"
               onClick={() => handleStatusChange('COMPLETED')}
               disabled={isUpdating}
+              className="w-full sm:w-auto"
             >
               Mark Complete
             </Button>
@@ -258,8 +259,9 @@ export default function TaskCard({
               variant="outline"
               onClick={() => handleStatusChange('IN_PROGRESS')}
               disabled={isUpdating}
+              className="w-full sm:w-auto"
             >
-              Start
+              Start Task
             </Button>
           )}
           {task.status === 'IN_PROGRESS' && (
@@ -268,8 +270,9 @@ export default function TaskCard({
               variant="outline"
               onClick={() => handleStatusChange('PENDING')}
               disabled={isUpdating}
+              className="w-full sm:w-auto"
             >
-              Pause
+              Pause Task
             </Button>
           )}
         </div>

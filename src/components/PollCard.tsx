@@ -156,13 +156,13 @@ export default function PollCard({ poll, tripId, onUpdate }: PollCardProps) {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex justify-between items-start mb-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4">
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-gray-900 mb-1">{poll.question}</h3>
           {poll.description && (
             <p className="text-gray-600 text-sm mb-2">{poll.description}</p>
           )}
-          <div className="flex items-center gap-4 text-sm text-gray-500">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-500">
             <span>By {poll.createdBy.name}</span>
             <span>Created {formatDate(poll.createdAt)}</span>
             <span>Expires {formatDate(poll.expiresAt)}</span>
@@ -209,7 +209,7 @@ export default function PollCard({ poll, tripId, onUpdate }: PollCardProps) {
                         : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
                     } ${isVoting ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
                       <span className="font-medium">{option}</span>
                       {isUserVote && (
                         <span className="text-blue-600 text-sm">✓ Your vote</span>
@@ -220,7 +220,7 @@ export default function PollCard({ poll, tripId, onUpdate }: PollCardProps) {
                   <div className={`flex-1 p-3 rounded-lg border-2 text-gray-900 ${
                     isWinning ? 'border-green-500 bg-green-50' : 'border-gray-200'
                   }`}>
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
                       <span className="font-medium">{option}</span>
                       {isWinning && (
                         <span className="text-green-600 text-sm font-medium">Winner</span>

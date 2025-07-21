@@ -274,18 +274,20 @@ export default function TaskForm({
         </div>
 
         {/* Buttons */}
-        <div className="flex justify-end space-x-3 pt-4">
+        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
           <Button
             type="button"
             variant="outline"
             onClick={onCancel}
             disabled={isSubmitting}
+            className="w-full sm:w-auto"
           >
             Cancel
           </Button>
           <Button
             type="submit"
             disabled={isSubmitting || !formData.title.trim()}
+            className="w-full sm:w-auto"
           >
             {isSubmitting ? 'Saving...' : (isEditing ? 'Update Task' : 'Create Task')}
           </Button>
