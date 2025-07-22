@@ -11,6 +11,7 @@ import TaskForm from "@/components/TaskForm"
 import TaskCard from "@/components/TaskCard"
 import PollForm from "@/components/PollForm"
 import PollCard from "@/components/PollCard"
+import ConfirmationModal from "@/components/ConfirmationModal"
 
 interface Trip {
   id: string
@@ -152,6 +153,10 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
   const [showPollForm, setShowPollForm] = useState(false)
   const [editingPoll, setEditingPoll] = useState<Poll | null>(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [deleteTripModal, setDeleteTripModal] = useState({ isOpen: false })
+  const [deleteItemModal, setDeleteItemModal] = useState({ isOpen: false, itemId: '' })
+  const [deleteCostModal, setDeleteCostModal] = useState({ isOpen: false, costId: '' })
+  const [successModal, setSuccessModal] = useState({ isOpen: false, message: '' })
 
   useEffect(() => {
     const loadParams = async () => {
@@ -252,14 +257,14 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
       if (response.ok) {
         setInviteEmail('')
         fetchTripData() // Refresh invitations
-        alert('Invitation sent successfully! Check your email for a notification.')
+        setSuccessModal({ isOpen: true, message: 'Invitation sent successfully! Check your email for a notification.' })
       } else {
         const error = await response.json()
-        alert(error.error || 'Failed to send invitation')
+        setSuccessModal({ isOpen: true, message: error.error || 'Failed to send invitation' })
       }
     } catch (error) {
       console.error('Error sending invitation:', error)
-      alert('An error occurred while sending the invitation')
+      setSuccessModal({ isOpen: true, message: 'An error occurred while sending the invitation' })
     } finally {
       setIsInviting(false)
     }
@@ -292,12 +297,12 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
   }
 
   const handleDeleteItem = async (itemId: string) => {
-    if (!confirm('Are you sure you want to delete this item?')) {
-      return
-    }
+    setDeleteItemModal({ isOpen: true, itemId })
+  }
 
+  const confirmDeleteItem = async () => {
     try {
-      const response = await fetch(`/api/trips/${tripId}/items/${itemId}`, {
+      const response = await fetch(`/api/trips/${tripId}/items/${deleteItemModal.itemId}`, {
         method: 'DELETE',
       })
 
@@ -315,12 +320,12 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
   }
 
   const handleDeleteCost = async (costId: string) => {
-    if (!confirm('Are you sure you want to delete this cost?')) {
-      return
-    }
+    setDeleteCostModal({ isOpen: true, costId })
+  }
 
+  const confirmDeleteCost = async () => {
     try {
-      const response = await fetch(`/api/trips/${tripId}/costs/${costId}`, {
+      const response = await fetch(`/api/trips/${tripId}/costs/${deleteCostModal.costId}`, {
         method: 'DELETE',
       })
 
@@ -338,10 +343,10 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
   }
 
   const handleDeleteTrip = async () => {
-    if (!confirm('Are you sure you want to delete this trip? This action cannot be undone and will delete all trip data including items, costs, tasks, and polls.')) {
-      return
-    }
+    setDeleteTripModal({ isOpen: true })
+  }
 
+  const confirmDeleteTrip = async () => {
     try {
       const response = await fetch(`/api/trips/${tripId}`, {
         method: 'DELETE',
@@ -1055,6 +1060,52 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
           )}
         </div>
       </div>
+
+      {/* Confirmation Modals */}
+      <ConfirmationModal
+        isOpen={deleteTripModal.isOpen}
+        onClose={() => setDeleteTripModal({ isOpen: false })}
+        onConfirm={confirmDeleteTrip}
+        title="Delete Trip"
+        message="Are you sure you want to delete this trip? This action cannot be undone and will delete all trip data including items, costs, tasks, and polls."
+        confirmText="Delete Trip"
+        cancelText="Cancel"
+        confirmVariant="destructive"
+      />
+
+      <ConfirmationModal
+        isOpen={deleteItemModal.isOpen}
+        onClose={() => setDeleteItemModal({ isOpen: false, itemId: '' })}
+        onConfirm={confirmDeleteItem}
+        title="Delete Item"
+        message="Are you sure you want to delete this item? This action cannot be undone."
+        confirmText="Delete Item"
+        cancelText="Cancel"
+        confirmVariant="destructive"
+      />
+
+      <ConfirmationModal
+        isOpen={deleteCostModal.isOpen}
+        onClose={() => setDeleteCostModal({ isOpen: false, costId: '' })}
+        onConfirm={confirmDeleteCost}
+        title="Delete Cost"
+        message="Are you sure you want to delete this cost? This action cannot be undone."
+        confirmText="Delete Cost"
+        cancelText="Cancel"
+        confirmVariant="destructive"
+      />
+
+      {/* Success Modal */}
+      <ConfirmationModal
+        isOpen={successModal.isOpen}
+        onClose={() => setSuccessModal({ isOpen: false, message: '' })}
+        onConfirm={() => setSuccessModal({ isOpen: false, message: '' })}
+        title="Success"
+        message={successModal.message}
+        confirmText="OK"
+        cancelText=""
+        confirmVariant="default"
+      />
     </div>
   )
 } 

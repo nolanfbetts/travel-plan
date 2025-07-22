@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
+import ConfirmationModal from '@/components/ConfirmationModal'
 
 interface Vote {
   id: string
@@ -43,6 +44,7 @@ export default function PollCard({ poll, tripId, onUpdate }: PollCardProps) {
   const { data: session } = useSession()
   const [isVoting, setIsVoting] = useState(false)
   const [error, setError] = useState('')
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   const isExpired = new Date(poll.expiresAt) < new Date()
   const isActive = poll.status === 'ACTIVE' && !isExpired
@@ -117,11 +119,12 @@ export default function PollCard({ poll, tripId, onUpdate }: PollCardProps) {
     }
   }
 
-  const handleDeletePoll = async () => {
+  const handleDeletePoll = () => {
     if (!isCreator) return
+    setShowDeleteModal(true)
+  }
 
-    if (!confirm('Are you sure you want to delete this poll?')) return
-
+  const confirmDeletePoll = async () => {
     try {
       const response = await fetch(`/api/trips/${tripId}/polls/${poll.id}`, {
         method: 'DELETE',
@@ -295,6 +298,18 @@ export default function PollCard({ poll, tripId, onUpdate }: PollCardProps) {
           </div>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDeletePoll}
+        title="Delete Poll"
+        message="Are you sure you want to delete this poll? This action cannot be undone and will remove all votes."
+        confirmText="Delete Poll"
+        cancelText="Cancel"
+        confirmVariant="destructive"
+      />
     </div>
   )
 } 

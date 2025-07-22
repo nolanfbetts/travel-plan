@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import ConfirmationModal from '@/components/ConfirmationModal'
 
 interface Task {
   id: string
@@ -49,6 +50,7 @@ export default function TaskCard({
   onEdit 
 }: TaskCardProps) {
   const [isUpdating, setIsUpdating] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -142,11 +144,11 @@ export default function TaskCard({
     }
   }
 
-  const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this task?')) {
-      return
-    }
+  const handleDelete = () => {
+    setShowDeleteModal(true)
+  }
 
+  const confirmDelete = async () => {
     try {
       const response = await fetch(`/api/trips/${tripId}/tasks/${task.id}`, {
         method: 'DELETE',
@@ -277,6 +279,18 @@ export default function TaskCard({
           )}
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+        title="Delete Task"
+        message="Are you sure you want to delete this task? This action cannot be undone."
+        confirmText="Delete Task"
+        cancelText="Cancel"
+        confirmVariant="destructive"
+      />
     </div>
   )
 } 
