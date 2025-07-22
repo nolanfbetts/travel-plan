@@ -109,6 +109,11 @@ export default function DashboardPage() {
                   Invitations {invitations.length > 0 && `(${invitations.length})`}
                 </Button>
               </Link>
+              <Link href="/profile">
+                <Button variant="outline" className="w-full sm:w-auto">
+                  Profile
+                </Button>
+              </Link>
               <Button 
                 variant="outline" 
                 onClick={() => signOut({ callbackUrl: '/auth/signin' })}

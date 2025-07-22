@@ -1,8 +1,12 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import Footer from "@/components/Footer"
+import { useSession } from "next-auth/react"
 
 export default function HomePage() {
+  const { data: session, status } = useSession()
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -15,12 +19,29 @@ export default function HomePage() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/auth/signin">
-                <Button variant="outline">Sign In</Button>
-              </Link>
-              <Link href="/auth/signup">
-                <Button>Get Started</Button>
-              </Link>
+              {status === "loading" ? (
+                <div className="animate-pulse">
+                  <div className="h-10 w-20 bg-gray-200 rounded"></div>
+                </div>
+              ) : session?.user ? (
+                <>
+                  <Link href="/dashboard">
+                    <Button variant="outline">Dashboard</Button>
+                  </Link>
+                  <Link href="/profile">
+                    <Button>Profile</Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/auth/signin">
+                    <Button variant="outline">Sign In</Button>
+                  </Link>
+                  <Link href="/auth/signup">
+                    <Button>Get Started</Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -373,16 +394,33 @@ export default function HomePage() {
             It&apos;s free to get started!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth/signup">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 text-lg">
-                Start Planning Free
-              </Button>
-            </Link>
-            <Link href="/auth/signin">
-              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg">
-                Sign In
-              </Button>
-            </Link>
+            {session?.user ? (
+              <>
+                <Link href="/dashboard">
+                  <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 text-lg">
+                    Go to Dashboard
+                  </Button>
+                </Link>
+                <Link href="/trips/new">
+                  <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg">
+                    Create New Trip
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/auth/signup">
+                  <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 text-lg">
+                    Start Planning Free
+                  </Button>
+                </Link>
+                <Link href="/auth/signin">
+                  <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg">
+                    Sign In
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>
