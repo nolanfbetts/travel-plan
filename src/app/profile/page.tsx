@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import ConfirmationModal from "@/components/ConfirmationModal"
+import AppLayout from "@/components/AppLayout"
 
 export default function ProfilePage() {
   const { data: session, status } = useSession()
@@ -54,87 +55,19 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar Navigation */}
-      <div className="w-64 bg-white shadow-sm border-r border-gray-200">
-        <div className="p-6">
-          {/* Logo/Brand */}
-          <div className="flex items-center mb-8">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
-              <span className="text-white font-bold text-lg">T</span>
-            </div>
-            <span className="text-xl font-bold text-gray-900">TravelPlan</span>
-          </div>
-
-          {/* User Profile */}
-          <div className="flex items-center mb-8 p-3 bg-gray-50 rounded-lg">
-            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center mr-3">
-              <span className="text-white font-medium text-sm">
-                {session?.user?.name?.charAt(0) || "U"}
-              </span>
-            </div>
-            <div>
-              <p className="font-medium text-gray-900 text-sm">{session?.user?.name || "User"}</p>
-              <p className="text-gray-500 text-xs">Traveler</p>
-            </div>
-          </div>
-
-          {/* Navigation Menu */}
-          <nav className="space-y-2">
-            <Link href="/dashboard" className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">
-              <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z" />
-              </svg>
-              Dashboard
-            </Link>
-            <Link href="/trips" className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">
-              <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m-6 3l6-3" />
-              </svg>
-              My Trips
-            </Link>
-            <Link href="/invitations" className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">
-              <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-              Invitations
-            </Link>
-            <Link href="/profile" className="flex items-center px-3 py-2 text-blue-600 bg-blue-50 rounded-lg">
-              <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              Profile
-            </Link>
-          </nav>
+    <>
+      <AppLayout currentPage="profile">
+      {/* Header */}
+      <div className="mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Profile
+          </h1>
+          <p className="text-gray-600">
+            Manage your account settings and preferences
+          </p>
         </div>
       </div>
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto">
-        <div className="p-8 max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="mb-8 flex justify-between items-start">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Profile
-              </h1>
-              <p className="text-gray-600">
-                Manage your account settings and preferences
-              </p>
-            </div>
-            <Button 
-              variant="outline" 
-              onClick={() => signOut({ callbackUrl: '/auth/signin' })}
-              className="flex items-center"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-              Logout
-            </Button>
-          </div>
 
           {/* Profile Information */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
@@ -219,8 +152,7 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </AppLayout>
 
       {/* Delete Account Confirmation Modal */}
       <ConfirmationModal
@@ -233,6 +165,6 @@ export default function ProfilePage() {
         cancelText="Cancel"
         confirmVariant="destructive"
       />
-    </div>
+    </>
   )
 } 
