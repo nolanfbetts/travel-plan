@@ -43,8 +43,7 @@ export default function DesktopNav({ currentPage = "dashboard", invitationCount 
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
         </svg>
       ),
-      page: "invitations",
-      badge: invitationCount
+      page: "invitations"
     },
     {
       name: "Profile",
@@ -96,11 +95,6 @@ export default function DesktopNav({ currentPage = "dashboard", invitationCount 
             >
               {item.icon}
               <span className="ml-3">{item.name}</span>
-              {item.badge && item.badge > 0 && (
-                <span className="ml-auto bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-                  {item.badge}
-                </span>
-              )}
             </Link>
           ))}
         </nav>

@@ -44,8 +44,7 @@ export default function MobileNav({ currentPage = "dashboard", invitationCount =
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5z" />
         </svg>
       ),
-      page: "invitations",
-      badge: invitationCount
+      page: "invitations"
     },
     {
       name: "Profile",
@@ -144,11 +143,6 @@ export default function MobileNav({ currentPage = "dashboard", invitationCount =
                 >
                   {item.icon}
                   <span className="ml-3 font-medium">{item.name}</span>
-                  {item.badge && item.badge > 0 && (
-                    <span className="ml-auto bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-                      {item.badge}
-                    </span>
-                  )}
                 </Link>
               ))}
             </div>
