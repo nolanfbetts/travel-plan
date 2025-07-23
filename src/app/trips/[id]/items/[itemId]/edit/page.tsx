@@ -205,7 +205,7 @@ export default function EditItineraryItemPage({
                   required
                   value={formData.type}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 >
                   {ITEM_TYPES.map((type) => (
                     <option key={type.value} value={type.value}>
@@ -226,7 +226,7 @@ export default function EditItineraryItemPage({
                   required
                   value={formData.title}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   placeholder="e.g., Flight to Paris"
                 />
               </div>
@@ -241,7 +241,7 @@ export default function EditItineraryItemPage({
                   rows={3}
                   value={formData.description}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Additional details about this item..."
                 />
               </div>
@@ -258,7 +258,7 @@ export default function EditItineraryItemPage({
                     value={formData.startDate}
                     onChange={handleInputChange}
                     min={trip?.startDate ? new Date(trip.startDate).toISOString().slice(0, 16) : undefined}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
 
@@ -274,7 +274,7 @@ export default function EditItineraryItemPage({
                     onChange={handleInputChange}
                     min={formData.startDate || (trip?.startDate ? new Date(trip.startDate).toISOString().slice(0, 16) : undefined)}
                     max={trip?.endDate ? new Date(trip.endDate).toISOString().slice(0, 16) : undefined}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -293,7 +293,7 @@ export default function EditItineraryItemPage({
                       required
                       value={formData.startLocation}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       placeholder="e.g., New York, NY"
                     />
                   </div>
@@ -308,7 +308,7 @@ export default function EditItineraryItemPage({
                       required
                       value={formData.endLocation}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       placeholder="e.g., Paris, France"
                     />
                   </div>
@@ -324,7 +324,7 @@ export default function EditItineraryItemPage({
                     name="location"
                     value={formData.location}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="e.g., Paris, France"
                   />
                 </div>
@@ -340,7 +340,7 @@ export default function EditItineraryItemPage({
                   name="confirmationCode"
                   value={formData.confirmationCode}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   placeholder="e.g., ABC123"
                 />
               </div>
@@ -355,7 +355,7 @@ export default function EditItineraryItemPage({
                   rows={3}
                   value={formData.notes}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Any additional notes..."
                 />
               </div>

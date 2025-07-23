@@ -155,7 +155,7 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="type" className="block text-sm font-medium text-gray-900">
                   Item Type *
                 </label>
                 <select
@@ -164,7 +164,7 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
                   required
                   value={formData.type}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 >
                   {ITEM_TYPES.map((type) => (
                     <option key={type.value} value={type.value}>
@@ -175,7 +175,7 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
               </div>
 
               <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="title" className="block text-sm font-medium text-gray-900">
                   Title *
                 </label>
                 <input
@@ -185,13 +185,13 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
                   required
                   value={formData.title}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   placeholder="e.g., Flight to Paris"
                 />
               </div>
 
               <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="description" className="block text-sm font-medium text-gray-900">
                   Description
                 </label>
                 <textarea
@@ -200,14 +200,14 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
                   rows={3}
                   value={formData.description}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Additional details about this item..."
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="startDate" className="block text-sm font-medium text-gray-900">
                     Start Date
                   </label>
                   <input
@@ -217,12 +217,12 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
                     value={formData.startDate}
                     onChange={handleInputChange}
                     min={trip?.startDate ? new Date(trip.startDate).toISOString().slice(0, 16) : undefined}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="endDate" className="block text-sm font-medium text-gray-900">
                     End Date
                   </label>
                   <input
@@ -233,7 +233,7 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
                     onChange={handleInputChange}
                     min={formData.startDate || (trip?.startDate ? new Date(trip.startDate).toISOString().slice(0, 16) : undefined)}
                     max={trip?.endDate ? new Date(trip.endDate).toISOString().slice(0, 16) : undefined}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -242,7 +242,7 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
               {(formData.type === 'FLIGHT' || formData.type === 'TRANSPORT') ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="startLocation" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="startLocation" className="block text-sm font-medium text-gray-900">
                       Starting Location *
                     </label>
                     <input
@@ -252,12 +252,12 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
                       required
                       value={formData.startLocation}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       placeholder="e.g., New York, NY"
                     />
                   </div>
                   <div>
-                    <label htmlFor="endLocation" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="endLocation" className="block text-sm font-medium text-gray-900">
                       Ending Location *
                     </label>
                     <input
@@ -267,14 +267,14 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
                       required
                       value={formData.endLocation}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       placeholder="e.g., Paris, France"
                     />
                   </div>
                 </div>
               ) : (
                 <div>
-                  <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="location" className="block text-sm font-medium text-gray-900">
                     Location
                   </label>
                   <input
@@ -283,14 +283,14 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
                     name="location"
                     value={formData.location}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="e.g., Paris, France"
                   />
                 </div>
               )}
 
               <div>
-                <label htmlFor="confirmationCode" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="confirmationCode" className="block text-sm font-medium text-gray-900">
                   Confirmation Code
                 </label>
                 <input
@@ -299,13 +299,13 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
                   name="confirmationCode"
                   value={formData.confirmationCode}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   placeholder="e.g., ABC123"
                 />
               </div>
 
               <div>
-                <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="notes" className="block text-sm font-medium text-gray-900">
                   Notes
                 </label>
                 <textarea
@@ -314,7 +314,7 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
                   rows={3}
                   value={formData.notes}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Any additional notes..."
                 />
               </div>
@@ -330,7 +330,7 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
                     onChange={handleInputChange}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <label htmlFor="hasCost" className="ml-2 block text-sm font-medium text-gray-700">
+                  <label htmlFor="hasCost" className="ml-2 block text-sm font-medium text-gray-900">
                     Add cost for this item
                   </label>
                 </div>
@@ -339,7 +339,7 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
                   <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="costAmount" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="costAmount" className="block text-sm font-medium text-gray-900">
                           Amount *
                         </label>
                         <input
@@ -351,13 +351,13 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
                           min="0"
                           value={formData.costAmount}
                           onChange={handleInputChange}
-                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                           placeholder="0.00"
                         />
                       </div>
 
                       <div>
-                        <label htmlFor="costCurrency" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="costCurrency" className="block text-sm font-medium text-gray-900">
                           Currency
                         </label>
                         <select
@@ -365,7 +365,7 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
                           name="costCurrency"
                           value={formData.costCurrency}
                           onChange={handleInputChange}
-                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         >
                           {CURRENCIES.map((currency) => (
                             <option key={currency.value} value={currency.value}>
@@ -378,7 +378,7 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="costCategory" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="costCategory" className="block text-sm font-medium text-gray-900">
                           Category
                         </label>
                         <select
@@ -386,7 +386,7 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
                           name="costCategory"
                           value={formData.costCategory}
                           onChange={handleInputChange}
-                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         >
                           <option value="">Select a category</option>
                           {COST_CATEGORIES.map((category) => (
@@ -398,7 +398,7 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
                       </div>
 
                       <div>
-                        <label htmlFor="costDate" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="costDate" className="block text-sm font-medium text-gray-900">
                           Date
                         </label>
                         <input
@@ -409,7 +409,7 @@ export default function AddItineraryItemPage({ params }: { params: Promise<{ id:
                           onChange={handleInputChange}
                           min={trip?.startDate ? new Date(trip.startDate).toISOString().split('T')[0] : undefined}
                           max={trip?.endDate ? new Date(trip.endDate).toISOString().split('T')[0] : undefined}
-                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         />
                       </div>
                     </div>

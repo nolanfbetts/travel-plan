@@ -11,6 +11,7 @@ import TaskForm from "@/components/TaskForm"
 import TaskCard from "@/components/TaskCard"
 import PollForm from "@/components/PollForm"
 import PollCard from "@/components/PollCard"
+import ItemForm from "@/components/ItemForm"
 import ConfirmationModal from "@/components/ConfirmationModal"
 
 interface Trip {
@@ -151,8 +152,9 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [polls, setPolls] = useState<Poll[]>([])
   const [showPollForm, setShowPollForm] = useState(false)
+  const [showItemForm, setShowItemForm] = useState(false)
+  const [editingItem, setEditingItem] = useState<ItineraryItem | null>(null)
   const [editingPoll, setEditingPoll] = useState<Poll | null>(null)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [deleteTripModal, setDeleteTripModal] = useState({ isOpen: false })
   const [deleteItemModal, setDeleteItemModal] = useState({ isOpen: false, itemId: '' })
   const [deleteCostModal, setDeleteCostModal] = useState({ isOpen: false, costId: '' })
@@ -171,26 +173,6 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
       fetchTripData()
     }
   }, [tripId])
-
-  // Close mobile menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element
-      if (isMobileMenuOpen && !target.closest('.mobile-menu-container')) {
-        setIsMobileMenuOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isMobileMenuOpen])
-
-  // Close mobile menu when switching tabs
-  useEffect(() => {
-    setIsMobileMenuOpen(false)
-  }, [activeTab])
 
   const fetchTripData = async () => {
     if (!tripId) return
@@ -256,7 +238,7 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
 
       if (response.ok) {
         setInviteEmail('')
-        fetchTripData() // Refresh invitations
+        fetchTripData()
         setSuccessModal({ isOpen: true, message: 'Invitation sent successfully! Check your email for a notification.' })
       } else {
         const error = await response.json()
@@ -281,7 +263,7 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
       })
 
       if (response.ok) {
-        fetchTripData() // Refresh invitations
+        fetchTripData()
       } else {
         const error = await response.json()
         alert(error.error || 'Failed to delete invitation')
@@ -307,7 +289,6 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
       })
 
       if (response.ok) {
-        // Refresh the data
         fetchTripData()
       } else {
         const error = await response.json()
@@ -330,7 +311,6 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
       })
 
       if (response.ok) {
-        // Refresh the data
         fetchTripData()
       } else {
         const error = await response.json()
@@ -401,9 +381,9 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
 
   if (status === "loading" || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading trip...</p>
         </div>
       </div>
@@ -412,7 +392,7 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
 
   if (!trip) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Trip not found</h1>
           <Link href="/dashboard">
@@ -424,272 +404,156 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          {/* Header */}
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar Navigation */}
+      <div className="w-64 bg-white shadow-sm border-r border-gray-200">
+        <div className="p-6">
+          {/* Back to Dashboard */}
+          <Link href="/dashboard" className="flex items-center text-blue-600 hover:text-blue-500 mb-6">
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Dashboard
+          </Link>
+
+          {/* Trip Info */}
           <div className="mb-8">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div>
-                <Link href="/dashboard" className="text-blue-600 hover:text-blue-500 mb-4 inline-block">
-                  ← Back to Dashboard
-                </Link>
-                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">{trip.name}</h1>
-                {trip.description && (
-                  <p className="mt-2 text-gray-600">{trip.description}</p>
-                )}
-                <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm text-gray-500">
-                  {trip.startDate && trip.endDate && (
-                    <span>
-                      {formatDate(trip.startDate)} - {formatDate(trip.endDate)}
-                    </span>
-                  )}
-                  <span>Created by {trip.creator.name}</span>
-                </div>
-              </div>
-              
-              {/* Desktop Action Buttons */}
-              <div className="hidden lg:flex flex-col sm:flex-row gap-2 sm:gap-3">
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Link href={tripId ? `/trips/${tripId}/items/new` : '#'}>
-                    <Button disabled={!tripId} className="w-full sm:w-auto">
-                      Add Item
-                    </Button>
-                  </Link>
-                  <Link href={tripId ? `/trips/${tripId}/costs/new` : '#'}>
-                    <Button variant="outline" disabled={!tripId} className="w-full sm:w-auto">
-                      Add Cost
-                    </Button>
-                  </Link>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setActiveTab('tasks')}
-                    disabled={!tripId}
-                    className="w-full sm:w-auto"
-                  >
-                    Add Task
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setActiveTab('polls')}
-                    disabled={!tripId}
-                    className="w-full sm:w-auto"
-                  >
-                    Create Poll
-                  </Button>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setActiveTab('invite')}
-                    disabled={!tripId}
-                    className="w-full sm:w-auto"
-                  >
-                    Invite People
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => signOut({ callbackUrl: '/auth/signin' })}
-                    className="w-full sm:w-auto"
-                  >
-                    Logout
-                  </Button>
-                </div>
-                {/* Delete Trip Button - Only show for trip creator */}
-                {trip && trip.creator.id === session?.user?.id && (
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <Button 
-                      variant="outline" 
-                      onClick={handleDeleteTrip}
-                      disabled={!tripId}
-                      className="w-full sm:w-auto bg-red-50 border-red-200 text-red-700 hover:bg-red-100 hover:border-red-300"
-                    >
-                      Delete Trip
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Mobile Menu Button - Positioned at top right */}
-            <div className="lg:hidden flex justify-end mt-4">
-              <div className="mobile-menu-container relative">
-                <button
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  aria-label="Toggle menu"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    {isMobileMenuOpen ? (
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    ) : (
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                    )}
-                  </svg>
-                </button>
-
-                {/* Mobile Menu Dropdown */}
-                {isMobileMenuOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-72 sm:w-80 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50 mobile-menu-dropdown">
-                    <div className="space-y-2">
-                      <Link href={tripId ? `/trips/${tripId}/items/new` : '#'}>
-                        <Button disabled={!tripId} className="w-full justify-start h-12">
-                          <span className="mr-3 text-lg">📝</span>
-                          <span className="text-base">Add Item</span>
-                        </Button>
-                      </Link>
-                      <Link href={tripId ? `/trips/${tripId}/costs/new` : '#'}>
-                        <Button variant="outline" disabled={!tripId} className="w-full justify-start h-12">
-                          <span className="mr-3 text-lg">💰</span>
-                          <span className="text-base">Add Cost</span>
-                        </Button>
-                      </Link>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => {
-                          setActiveTab('tasks')
-                          setIsMobileMenuOpen(false)
-                        }}
-                        disabled={!tripId}
-                        className="w-full justify-start h-12"
-                      >
-                        <span className="mr-3 text-lg">✅</span>
-                        <span className="text-base">Add Task</span>
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => {
-                          setActiveTab('polls')
-                          setIsMobileMenuOpen(false)
-                        }}
-                        disabled={!tripId}
-                        className="w-full justify-start h-12"
-                      >
-                        <span className="mr-3 text-lg">📊</span>
-                        <span className="text-base">Create Poll</span>
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => {
-                          setActiveTab('invite')
-                          setIsMobileMenuOpen(false)
-                        }}
-                        disabled={!tripId}
-                        className="w-full justify-start h-12"
-                      >
-                        <span className="mr-3 text-lg">👥</span>
-                        <span className="text-base">Invite People</span>
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => signOut({ callbackUrl: '/auth/signin' })}
-                        className="w-full justify-start h-12"
-                      >
-                        <span className="mr-3 text-lg">🚪</span>
-                        <span className="text-base">Logout</span>
-                      </Button>
-                      {/* Delete Trip Button - Only show for trip creator */}
-                      {trip && trip.creator.id === session?.user?.id && (
-                        <Button 
-                          variant="outline" 
-                          onClick={() => {
-                            handleDeleteTrip()
-                            setIsMobileMenuOpen(false)
-                          }}
-                          className="w-full justify-start h-12 bg-red-50 border-red-200 text-red-700 hover:bg-red-100 hover:border-red-300"
-                        >
-                          <span className="mr-3 text-lg">🗑️</span>
-                          <span className="text-base">Delete Trip</span>
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+            <h1 className="text-xl font-bold text-gray-900 mb-2">{trip.name}</h1>
+            {trip.description && (
+              <p className="text-sm text-gray-600 mb-3">{trip.description}</p>
+            )}
+            {trip.startDate && trip.endDate && (
+              <p className="text-sm text-gray-500 mb-2">
+                {formatDate(trip.startDate)} - {formatDate(trip.endDate)}
+              </p>
+            )}
+            <p className="text-xs text-gray-400">Created by {trip.creator.name}</p>
           </div>
 
-          {/* Tabs */}
-          <div className="border-b border-gray-200 mb-8">
-            <nav className="-mb-px flex space-x-8 overflow-x-auto pb-2">
-              {[
-                { id: 'overview', label: 'Overview' },
-                { id: 'itinerary', label: 'Itinerary' },
-                { id: 'calendar', label: 'Calendar' },
-                { id: 'costs', label: 'Costs' },
-                { id: 'tasks', label: 'Tasks' },
-                { id: 'polls', label: 'Polls' },
-                { id: 'invite', label: 'Invite' }
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as 'overview' | 'itinerary' | 'calendar' | 'costs' | 'tasks' | 'polls' | 'invite')}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
-          </div>
+          {/* Navigation Menu */}
+          <nav className="space-y-2">
+            {[
+              { id: 'overview', label: 'Overview', icon: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z' },
+              { id: 'itinerary', label: 'Itinerary', icon: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m-6 3l6-3' },
+              { id: 'calendar', label: 'Calendar', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
+              { id: 'costs', label: 'Costs', icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1' },
+              { id: 'tasks', label: 'Tasks', icon: 'M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4' },
+              { id: 'polls', label: 'Polls', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
+              { id: 'invite', label: 'Invite', icon: 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z' }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as 'overview' | 'itinerary' | 'calendar' | 'costs' | 'tasks' | 'polls' | 'invite')}
+                className={`w-full flex items-center px-3 py-2 text-sm rounded-lg transition-colors ${
+                  activeTab === tab.id
+                    ? 'text-blue-600 bg-blue-50'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                }`}
+              >
+                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.icon} />
+                </svg>
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+        </div>
 
+        {/* Delete Trip Button - Only show for trip creator */}
+        {trip && trip.creator.id === session?.user?.id && (
+          <div className="absolute bottom-6 left-6 right-6">
+            <Button 
+              variant="outline" 
+              onClick={handleDeleteTrip}
+              className="w-full bg-red-50 border-red-200 text-red-700 hover:bg-red-100 hover:border-red-300"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete Trip
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto">
+        <div className="p-8">
           {/* Tab Content */}
           {activeTab === 'overview' && (
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Trip Members */}
-              <div className="bg-white shadow rounded-lg p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Trip Members</h3>
-                <div className="space-y-3">
-                  {trip.members.map((member) => (
-                    <div key={member.id} className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900">{member.user.name}</p>
-                        <p className="text-sm text-gray-500">{member.user.email}</p>
-                      </div>
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        member.role === 'CREATOR' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {member.role}
-                      </span>
+            <div className="max-w-4xl mx-auto">
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Trip Members */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <h3 className="text-lg font-medium text-gray-900">Trip Members</h3>
+                  </div>
+                  <div className="p-6">
+                    <div className="space-y-3">
+                      {trip.members.map((member) => (
+                        <div key={member.id} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                              <span className="text-sm font-medium text-blue-600">
+                                {member.user.name.charAt(0)}
+                              </span>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900 text-sm">{member.user.name}</p>
+                              <p className="text-xs text-gray-500">{member.user.email}</p>
+                            </div>
+                          </div>
+                          <span className={`px-2 py-1 text-xs rounded-full font-medium ${
+                            member.role === 'CREATOR' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700'
+                          }`}>
+                            {member.role}
+                          </span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Cost Summary */}
-              <div className="bg-white shadow rounded-lg p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Cost Summary</h3>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Total Spent:</span>
-                    <span className="text-2xl font-bold text-green-600">
-                      ${getTotalCost().toFixed(2)}
-                    </span>
+                {/* Cost Summary */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <h3 className="text-lg font-medium text-gray-900">Cost Summary</h3>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Items:</span>
-                    <span className="font-medium text-gray-900">{itineraryItems.length}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Expenses:</span>
-                    <span className="font-medium text-gray-900">{costs.length}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Tasks:</span>
-                    <span className="font-medium text-gray-900">{tasks.length}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Completed Tasks:</span>
-                    <span className="font-medium text-gray-900">{tasks.filter(t => t.status === 'COMPLETED').length}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Active Polls:</span>
-                    <span className="font-medium text-gray-900">{polls.filter(p => p.status === 'ACTIVE').length}</span>
+                  <div className="p-6">
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                        <span className="text-sm font-medium text-gray-700">Total Spent:</span>
+                        <span className="text-xl font-bold text-green-600">
+                          ${getTotalCost().toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                          <span className="text-xs text-gray-600">Items:</span>
+                          <span className="text-sm font-medium text-gray-900">{itineraryItems.length}</span>
+                        </div>
+                        <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                          <span className="text-xs text-gray-600">Expenses:</span>
+                          <span className="text-sm font-medium text-gray-900">{costs.length}</span>
+                        </div>
+                        <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                          <span className="text-xs text-gray-600">Tasks:</span>
+                          <span className="text-sm font-medium text-gray-900">{tasks.length}</span>
+                        </div>
+                        <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                          <span className="text-xs text-gray-600">Completed:</span>
+                          <span className="text-sm font-medium text-gray-900">{tasks.filter(t => t.status === 'COMPLETED').length}</span>
+                        </div>
+                        <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                          <span className="text-xs text-gray-600">Active Polls:</span>
+                          <span className="text-sm font-medium text-gray-900">{polls.filter(p => p.status === 'ACTIVE').length}</span>
+                        </div>
+                        <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                          <span className="text-xs text-gray-600">Members:</span>
+                          <span className="text-sm font-medium text-gray-900">{trip.members.length}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -697,77 +561,164 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
           )}
 
           {activeTab === 'itinerary' && (
-            <div className="bg-white shadow rounded-lg">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">Itinerary Items</h3>
-              </div>
-              <div className="p-6">
-                {itineraryItems.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-gray-500 mb-4">No itinerary items yet.</p>
-                    <Link href={tripId ? `/trips/${tripId}/items/new` : '#'}>
-                      <Button disabled={!tripId}>
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                  <h3 className="text-lg font-medium text-gray-900">Itinerary Items</h3>
+                  <Button 
+                    disabled={!tripId} 
+                    className="bg-blue-600 hover:bg-blue-700"
+                    onClick={() => setShowItemForm(true)}
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Add Item
+                  </Button>
+                </div>
+                <div className="p-6">
+                  {(showItemForm || editingItem) && (
+                    <div className="mb-6">
+                      <ItemForm
+                        tripId={tripId || ''}
+                        onItemCreated={() => {
+                          setShowItemForm(false)
+                          setEditingItem(null)
+                          fetchTripData()
+                        }}
+                        onCancel={() => {
+                          setShowItemForm(false)
+                          setEditingItem(null)
+                        }}
+                        initialData={editingItem ? {
+                          id: editingItem.id,
+                          type: editingItem.type,
+                          title: editingItem.title,
+                          description: editingItem.description || undefined,
+                          startDate: editingItem.startDate || undefined,
+                          endDate: editingItem.endDate || undefined,
+                          location: editingItem.location || undefined,
+                          startLocation: editingItem.startLocation || undefined,
+                          endLocation: editingItem.endLocation || undefined,
+                          confirmationCode: editingItem.confirmationCode || undefined,
+                          notes: editingItem.notes || undefined
+                        } : undefined}
+                        isEditing={!!editingItem}
+                      />
+                    </div>
+                  )}
+                  
+                  {itineraryItems.length === 0 ? (
+                    <div className="text-center py-8">
+                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m-6 3l6-3" />
+                        </svg>
+                      </div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No itinerary items yet</h3>
+                      <p className="text-gray-500 mb-4">Start building your trip itinerary by adding your first item.</p>
+                      <Button 
+                        disabled={!tripId} 
+                        className="bg-blue-600 hover:bg-blue-700"
+                        onClick={() => setShowItemForm(true)}
+                      >
                         Add First Item
                       </Button>
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {itineraryItems.map((item) => (
-                      <div key={item.id} className="border border-gray-200 rounded-lg p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-start space-x-3">
-                            <span className="text-2xl">{getCategoryIcon(item.type)}</span>
-                            <div>
-                              <h4 className="font-medium text-gray-900">{item.title}</h4>
-                              {item.description && (
-                                <p className="text-sm text-gray-600 mt-1">{item.description}</p>
-                              )}
-                              <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                                {item.startDate && (
-                                  <span>{formatDateTime(item.startDate)}</span>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {itineraryItems.map((item) => (
+                        <div key={item.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-start space-x-3 flex-1">
+                              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <span className="text-lg">{getCategoryIcon(item.type)}</span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center space-x-2 mb-1">
+                                  <h4 className="font-medium text-gray-900 text-sm">{item.title}</h4>
+                                  <span className={`px-2 py-1 text-xs rounded-full font-medium ${getCategoryColor(item.type)}`}>
+                                    {item.type}
+                                  </span>
+                                </div>
+                                {item.description && (
+                                  <p className="text-xs text-gray-600 mb-2 line-clamp-2">{item.description}</p>
                                 )}
-                                {(item.type === 'FLIGHT' || item.type === 'TRANSPORT') ? (
-                                  item.startLocation && item.endLocation ? (
-                                    <span>📍 {item.startLocation} → {item.endLocation}</span>
-                                  ) : null
-                                ) : (
-                                  item.location && (
-                                    <span>📍 {item.location}</span>
-                                  )
-                                )}
-                                {item.confirmationCode && (
-                                  <span>🔑 {item.confirmationCode}</span>
-                                )}
-                                <span>Added by {item.createdBy.name || item.createdBy.email}</span>
+                                <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                                  {item.startDate && (
+                                    <span className="flex items-center">
+                                      <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                      </svg>
+                                      {formatDateTime(item.startDate)}
+                                    </span>
+                                  )}
+                                  {(item.type === 'FLIGHT' || item.type === 'TRANSPORT') ? (
+                                    item.startLocation && item.endLocation ? (
+                                      <span className="flex items-center">
+                                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        {item.startLocation} → {item.endLocation}
+                                      </span>
+                                    ) : null
+                                  ) : (
+                                    item.location && (
+                                      <span className="flex items-center">
+                                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        {item.location}
+                                      </span>
+                                    )
+                                  )}
+                                  {item.confirmationCode && (
+                                    <span className="flex items-center">
+                                      <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                      </svg>
+                                      {item.confirmationCode}
+                                    </span>
+                                  )}
+                                  <span className="flex items-center">
+                                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    {item.createdBy.name || item.createdBy.email}
+                                  </span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span className={`px-2 py-1 text-xs rounded-full ${getCategoryColor(item.type)}`}>
-                              {item.type}
-                            </span>
-                            <div className="flex space-x-1">
-                              <Link href={`/trips/${tripId}/items/${item.id}/edit`}>
-                                <Button size="sm" variant="outline" className="h-8 px-2 bg-gray-100 hover:bg-gray-200 border-gray-300">
-                                  ✏️
-                                </Button>
-                              </Link>
+                            <div className="flex items-center space-x-1 ml-3">
                               <Button 
                                 size="sm" 
                                 variant="outline" 
-                                className="h-8 px-2 bg-red-100 hover:bg-red-200 text-red-700 border-red-300 hover:border-red-400"
+                                className="h-7 w-7 p-0"
+                                onClick={() => setEditingItem(item)}
+                              >
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="h-7 w-7 p-0 bg-red-50 hover:bg-red-100 text-red-700 border-red-200 hover:border-red-300"
                                 onClick={() => handleDeleteItem(item.id)}
                               >
-                                🗑️
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
                               </Button>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -782,16 +733,30 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
           )}
 
           {activeTab === 'costs' && (
-            <div className="bg-white shadow rounded-lg">
-              <div className="px-6 py-4 border-b border-gray-200">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+              <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                 <h3 className="text-lg font-medium text-gray-900">Costs & Expenses</h3>
+                <Link href={tripId ? `/trips/${tripId}/costs/new` : '#'}>
+                  <Button disabled={!tripId} className="bg-blue-600 hover:bg-blue-700">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                    </svg>
+                    Add Cost
+                  </Button>
+                </Link>
               </div>
               <div className="p-6">
                 {costs.length === 0 ? (
                   <div className="text-center py-12">
-                    <p className="text-gray-500 mb-4">No costs tracked yet.</p>
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No costs tracked yet</h3>
+                    <p className="text-gray-500 mb-6">Start tracking your trip expenses by adding your first cost.</p>
                     <Link href={tripId ? `/trips/${tripId}/costs/new` : '#'}>
-                      <Button disabled={!tripId}>
+                      <Button disabled={!tripId} className="bg-blue-600 hover:bg-blue-700">
                         Add First Cost
                       </Button>
                     </Link>
@@ -799,7 +764,7 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                 ) : (
                   <div className="space-y-4">
                     {costs.map((cost) => (
-                      <div key={cost.id} className="border border-gray-200 rounded-lg p-4">
+                      <div key={cost.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between">
                           <div>
                             <h4 className="font-medium text-gray-900">{cost.description}</h4>
@@ -821,17 +786,21 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                             </div>
                             <div className="flex space-x-1">
                               <Link href={`/trips/${tripId}/costs/${cost.id}/edit`}>
-                                <Button size="sm" variant="outline" className="h-8 px-2 bg-gray-100 hover:bg-gray-200 border-gray-300">
-                                  ✏️
+                                <Button size="sm" variant="outline" className="h-8 px-2">
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
                                 </Button>
                               </Link>
                               <Button 
                                 size="sm" 
                                 variant="outline" 
-                                className="h-8 px-2 bg-red-100 hover:bg-red-200 text-red-700 border-red-300 hover:border-red-400"
+                                className="h-8 px-2 bg-red-50 hover:bg-red-100 text-red-700 border-red-200 hover:border-red-300"
                                 onClick={() => handleDeleteCost(cost.id)}
                               >
-                                🗑️
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
                               </Button>
                             </div>
                           </div>
@@ -845,7 +814,7 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
           )}
 
           {activeTab === 'tasks' && (
-            <div className="bg-white shadow rounded-lg">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                 <h3 className="text-lg font-medium text-gray-900">Tasks & To-Do List</h3>
                 <Button
@@ -853,7 +822,11 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                     setEditingTask(null)
                     setShowTaskForm(true)
                   }}
+                  className="bg-blue-600 hover:bg-blue-700"
                 >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
                   Add Task
                 </Button>
               </div>
@@ -884,12 +857,19 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                 
                 {tasks.length === 0 ? (
                   <div className="text-center py-12">
-                    <p className="text-gray-500 mb-4">No tasks yet.</p>
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks yet</h3>
+                    <p className="text-gray-500 mb-6">Start organizing your trip by adding your first task.</p>
                     <Button
                       onClick={() => {
                         setEditingTask(null)
                         setShowTaskForm(true)
                       }}
+                      className="bg-blue-600 hover:bg-blue-700"
                     >
                       Add First Task
                     </Button>
@@ -917,7 +897,7 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
           )}
 
           {activeTab === 'polls' && (
-            <div className="bg-white shadow rounded-lg">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                 <h3 className="text-lg font-medium text-gray-900">Voting & Polls</h3>
                 <Button
@@ -925,7 +905,11 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                     setEditingPoll(null)
                     setShowPollForm(true)
                   }}
+                  className="bg-blue-600 hover:bg-blue-700"
                 >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
                   Create Poll
                 </Button>
               </div>
@@ -952,12 +936,19 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                 
                 {polls.length === 0 ? (
                   <div className="text-center py-12">
-                    <p className="text-gray-500 mb-4">No polls yet.</p>
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No polls yet</h3>
+                    <p className="text-gray-500 mb-6">Start making decisions together by creating your first poll.</p>
                     <Button
                       onClick={() => {
                         setEditingPoll(null)
                         setShowPollForm(true)
                       }}
+                      className="bg-blue-600 hover:bg-blue-700"
                     >
                       Create First Poll
                     </Button>
@@ -979,7 +970,7 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
           )}
 
           {activeTab === 'invite' && (
-            <div className="bg-white shadow rounded-lg">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               <div className="px-6 py-4 border-b border-gray-200">
                 <h3 className="text-lg font-medium text-gray-900">Invite People to Trip</h3>
               </div>
@@ -993,12 +984,13 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                       placeholder="Enter email address"
                       value={inviteEmail}
                       onChange={(e) => setInviteEmail(e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 font-medium text-gray-800"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
                       onKeyPress={(e) => e.key === 'Enter' && handleSendInvite()}
                     />
                     <Button 
                       onClick={handleSendInvite}
                       disabled={!inviteEmail.trim() || isInviting}
+                      className="bg-blue-600 hover:bg-blue-700"
                     >
                       {isInviting ? 'Sending...' : 'Send Invite'}
                     </Button>
@@ -1009,7 +1001,7 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                 <div>
                   <h4 className="text-md font-medium text-gray-900 mb-4">All Invitations</h4>
                   {invitations.length === 0 ? (
-                    <p className="text-gray-700 font-medium">No invitations sent.</p>
+                    <p className="text-gray-500">No invitations sent.</p>
                   ) : (
                     <div className="space-y-3">
                       {invitations.map((invite) => (
@@ -1026,13 +1018,13 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                           <div className="flex items-center space-x-2">
                             {invite.status === 'PENDING' && (
                               <>
-                                <span className="px-2 py-1 text-xs rounded-full bg-yellow-200 text-yellow-950 font-semibold">
+                                <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">
                                   Pending
                                 </span>
                                 <Button 
                                   size="sm" 
                                   variant="outline" 
-                                  className="h-8 px-2 bg-red-100 hover:bg-red-200 text-red-700 border-red-300 hover:border-red-400"
+                                  className="h-8 px-2 bg-red-50 hover:bg-red-100 text-red-700 border-red-200 hover:border-red-300"
                                   onClick={() => handleDeleteInvite(invite.id)}
                                 >
                                   Cancel
@@ -1040,12 +1032,12 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                               </>
                             )}
                             {invite.status === 'ACCEPTED' && (
-                              <span className="px-2 py-1 text-xs rounded-full bg-green-200 text-green-950 font-semibold">
+                              <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
                                 Accepted
                               </span>
                             )}
                             {invite.status === 'DECLINED' && (
-                              <span className="px-2 py-1 text-xs rounded-full bg-red-200 text-red-950 font-semibold">
+                              <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">
                                 Declined
                               </span>
                             )}
@@ -1095,7 +1087,6 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
         confirmVariant="destructive"
       />
 
-      {/* Success Modal */}
       <ConfirmationModal
         isOpen={successModal.isOpen}
         onClose={() => setSuccessModal({ isOpen: false, message: '' })}
@@ -1106,6 +1097,8 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
         cancelText=""
         confirmVariant="default"
       />
+
+
     </div>
   )
 } 
