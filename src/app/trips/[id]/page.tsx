@@ -13,6 +13,7 @@ import TaskCard from "@/components/TaskCard"
 import PollForm from "@/components/PollForm"
 import PollCard from "@/components/PollCard"
 import ItemForm from "@/components/ItemForm"
+import CostForm from "@/components/CostForm"
 import ConfirmationModal from "@/components/ConfirmationModal"
 import TripLayout from "@/components/TripLayout"
 
@@ -157,6 +158,8 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
   const [showItemForm, setShowItemForm] = useState(false)
   const [editingItem, setEditingItem] = useState<ItineraryItem | null>(null)
   const [editingPoll, setEditingPoll] = useState<Poll | null>(null)
+  const [showCostForm, setShowCostForm] = useState(false)
+  const [editingCost, setEditingCost] = useState<Cost | null>(null)
   const [deleteTripModal, setDeleteTripModal] = useState({ isOpen: false })
   const [deleteItemModal, setDeleteItemModal] = useState({ isOpen: false, itemId: '' })
   const [deleteCostModal, setDeleteCostModal] = useState({ isOpen: false, costId: '' })
@@ -345,6 +348,27 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
       console.error('Error deleting trip:', error)
       alert('An error occurred while deleting the trip')
     }
+  }
+
+  const handleCostCreated = () => {
+    setShowCostForm(false)
+    setEditingCost(null)
+    fetchTripData()
+  }
+
+  const handleCostCancel = () => {
+    setShowCostForm(false)
+    setEditingCost(null)
+  }
+
+  const handleEditCost = (cost: Cost) => {
+    setEditingCost(cost)
+    setShowCostForm(true)
+  }
+
+  const handleAddCost = () => {
+    setEditingCost(null)
+    setShowCostForm(true)
   }
 
   const getCategoryIcon = (type: string) => {
@@ -689,16 +713,39 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                 <h3 className="text-lg font-medium text-gray-900">Costs & Expenses</h3>
-                <Link href={tripId ? `/trips/${tripId}/costs/new` : '#'}>
-                  <Button disabled={!tripId} className="bg-blue-600 hover:bg-blue-700">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                    </svg>
-                    Add Cost
-                  </Button>
-                </Link>
+                <Button 
+                  onClick={handleAddCost}
+                  disabled={!tripId} 
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                  </svg>
+                  Add Cost
+                </Button>
               </div>
               <div className="p-6">
+                {showCostForm && (
+                  <div className="mb-6">
+                    <CostForm
+                      tripId={tripId || ''}
+                      tripStartDate={trip?.startDate}
+                      tripEndDate={trip?.endDate}
+                      onCostCreated={handleCostCreated}
+                      onCancel={handleCostCancel}
+                      initialData={editingCost ? {
+                        id: editingCost.id,
+                        amount: editingCost.amount,
+                        currency: editingCost.currency,
+                        description: editingCost.description,
+                        category: editingCost.category,
+                        date: editingCost.date
+                      } : undefined}
+                      isEditing={!!editingCost}
+                    />
+                  </div>
+                )}
+                
                 {costs.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -708,11 +755,13 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                     </div>
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No costs tracked yet</h3>
                     <p className="text-gray-500 mb-6">Start tracking your trip expenses by adding your first cost.</p>
-                    <Link href={tripId ? `/trips/${tripId}/costs/new` : '#'}>
-                      <Button disabled={!tripId} className="bg-blue-600 hover:bg-blue-700">
-                        Add First Cost
-                      </Button>
-                    </Link>
+                    <Button 
+                      onClick={handleAddCost}
+                      disabled={!tripId} 
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      Add First Cost
+                    </Button>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -738,13 +787,16 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                               </span>
                             </div>
                             <div className="flex space-x-1">
-                              <Link href={`/trips/${tripId}/costs/${cost.id}/edit`}>
-                                <Button size="sm" variant="outline" className="h-8 px-2">
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                  </svg>
-                                </Button>
-                              </Link>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="h-8 px-2"
+                                onClick={() => handleEditCost(cost)}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </Button>
                               <Button 
                                 size="sm" 
                                 variant="outline" 
