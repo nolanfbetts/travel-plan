@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { formatDate, formatDateTime } from "@/lib/utils"
 import Calendar from "@/components/Calendar"
+import MobileCalendar from "@/components/MobileCalendar"
 import TaskForm from "@/components/TaskForm"
 import TaskCard from "@/components/TaskCard"
 import PollForm from "@/components/PollForm"
@@ -661,12 +662,27 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
           )}
 
           {activeTab === 'calendar' && (
-            <Calendar 
-              items={itineraryItems}
-              tripId={tripId || ''}
-              tripStartDate={trip?.startDate}
-              tripEndDate={trip?.endDate}
-            />
+            <>
+              {/* Mobile Calendar */}
+              <div className="md:hidden">
+                <MobileCalendar 
+                  items={itineraryItems}
+                  tripId={tripId || ''}
+                  tripStartDate={trip?.startDate}
+                  tripEndDate={trip?.endDate}
+                />
+              </div>
+              
+              {/* Desktop Calendar */}
+              <div className="hidden md:block">
+                <Calendar 
+                  items={itineraryItems}
+                  tripId={tripId || ''}
+                  tripStartDate={trip?.startDate}
+                  tripEndDate={trip?.endDate}
+                />
+              </div>
+            </>
           )}
 
           {activeTab === 'costs' && (
