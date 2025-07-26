@@ -50,6 +50,7 @@ export default function Calendar({ items, tripId, tripStartDate, tripEndDate }: 
       case 'flight':
         return '✈️'
       case 'hotel':
+      case 'accommodation':
         return '🏨'
       case 'event':
         return '🎫'
@@ -57,6 +58,12 @@ export default function Calendar({ items, tripId, tripStartDate, tripEndDate }: 
         return '🚗'
       case 'activity':
         return '🎯'
+      case 'food':
+        return '🍽️'
+      case 'shopping':
+        return '🛍️'
+      case 'other':
+        return '📅'
       default:
         return '📅'
     }
@@ -67,6 +74,7 @@ export default function Calendar({ items, tripId, tripStartDate, tripEndDate }: 
       case 'flight':
         return 'bg-blue-100 text-blue-800 border-blue-200'
       case 'hotel':
+      case 'accommodation':
         return 'bg-purple-100 text-purple-800 border-purple-200'
       case 'event':
         return 'bg-green-100 text-green-800 border-green-200'
@@ -74,6 +82,12 @@ export default function Calendar({ items, tripId, tripStartDate, tripEndDate }: 
         return 'bg-yellow-100 text-yellow-800 border-yellow-200'
       case 'activity':
         return 'bg-pink-100 text-pink-800 border-pink-200'
+      case 'food':
+        return 'bg-orange-100 text-orange-800 border-orange-200'
+      case 'shopping':
+        return 'bg-indigo-100 text-indigo-800 border-indigo-200'
+      case 'other':
+        return 'bg-gray-100 text-gray-800 border-gray-200'
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200'
     }
@@ -84,6 +98,7 @@ export default function Calendar({ items, tripId, tripStartDate, tripEndDate }: 
       case 'flight':
         return 'bg-blue-500'
       case 'hotel':
+      case 'accommodation':
         return 'bg-purple-500'
       case 'event':
         return 'bg-green-500'
@@ -91,6 +106,12 @@ export default function Calendar({ items, tripId, tripStartDate, tripEndDate }: 
         return 'bg-yellow-500'
       case 'activity':
         return 'bg-pink-500'
+      case 'food':
+        return 'bg-orange-500'
+      case 'shopping':
+        return 'bg-indigo-500'
+      case 'other':
+        return 'bg-gray-500'
       default:
         return 'bg-gray-500'
     }
@@ -530,13 +551,30 @@ export default function Calendar({ items, tripId, tripStartDate, tripEndDate }: 
       {viewType === 'day' && renderDayView()}
 
       {/* Legend */}
-      <div className="px-6 py-4 border-t border-gray-200">
-        <h4 className="text-sm font-medium text-gray-900 mb-3">Legend</h4>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-          {['Flight', 'Hotel', 'Event', 'Transport', 'Activity'].map(type => (
-            <div key={type} className="flex items-center space-x-2">
-              <div className={`w-3 h-3 rounded-full ${getCategoryColorSolid(type)}`}></div>
-              <span className="text-xs text-gray-600">{type}</span>
+      <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+        <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center">
+          <svg className="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+          </svg>
+          Event Categories
+        </h4>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+          {[
+            { type: 'Flight', label: 'Flight', icon: '✈️' },
+            { type: 'Hotel', label: 'Hotel', icon: '🏨' },
+            { type: 'Event', label: 'Event', icon: '🎫' },
+            { type: 'Transport', label: 'Transport', icon: '🚗' },
+            { type: 'Activity', label: 'Activity', icon: '🎯' },
+            { type: 'Food', label: 'Food', icon: '🍽️' },
+            { type: 'Shopping', label: 'Shopping', icon: '🛍️' },
+            { type: 'Other', label: 'Other', icon: '📅' }
+          ].map(({ type, label, icon }) => (
+            <div key={type} className="flex items-center space-x-2 p-2 rounded-lg hover:bg-white transition-colors">
+              <div className="flex items-center space-x-1">
+                <span className="text-sm">{icon}</span>
+                <div className={`w-2 h-2 rounded-full ${getCategoryColorSolid(type)}`}></div>
+              </div>
+              <span className="text-sm font-medium text-gray-700">{label}</span>
             </div>
           ))}
         </div>
@@ -545,7 +583,7 @@ export default function Calendar({ items, tripId, tripStartDate, tripEndDate }: 
       {/* Quick Actions */}
       <div className="px-6 py-4 border-t border-gray-200">
         <div className="flex justify-center">
-          <Link href={`/trips/${tripId}/items/new`}>
+          <Link href={`/trips/${tripId}/itinerary`}>
             <Button className="bg-blue-600 hover:bg-blue-700">
               Add New Event
             </Button>

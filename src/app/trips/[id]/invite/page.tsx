@@ -5,6 +5,13 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import TripLayout from "@/components/TripLayout"
 import { Button } from "@/components/ui/button"
+import UserSearch from "@/components/UserSearch"
+
+interface User {
+  id: string
+  name: string | null
+  email: string
+}
 
 interface TripInvite {
   id: string
@@ -41,7 +48,9 @@ export default function TripInvitePage({ params }: { params: Promise<{ id: strin
   const router = useRouter()
   const [trip, setTrip] = useState<Trip | null>(null)
   const [invitations, setInvitations] = useState<TripInvite[]>([])
-  const [inviteEmail, setInviteEmail] = useState("")
+  const [inviteEmails, setInviteEmails] = useState<string[]>([])
+  const [newEmail, setNewEmail] = useState("")
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([])
   const [isInviting, setIsInviting] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
@@ -76,9 +85,40 @@ export default function TripInvitePage({ params }: { params: Promise<{ id: strin
     }
   }
 
+  const handleUserSelect = (user: User) => {
+    if (!selectedUsers.find(u => u.id === user.id)) {
+      setSelectedUsers([...selectedUsers, user])
+    }
+  }
+
+  const handleRemoveUser = (userId: string) => {
+    setSelectedUsers(selectedUsers.filter(u => u.id !== userId))
+  }
+
+  const handleAddEmail = () => {
+    if (!newEmail.trim()) return
+    
+    // Split by commas and clean up each email
+    const emails = newEmail.split(',').map(email => email.trim()).filter(email => email)
+    
+    // Add unique emails that aren't already in the list
+    const newEmails = emails.filter(email => !inviteEmails.includes(email))
+    if (newEmails.length > 0) {
+      setInviteEmails([...inviteEmails, ...newEmails])
+    }
+    setNewEmail("")
+  }
+
+  const handleRemoveEmail = (emailToRemove: string) => {
+    setInviteEmails(inviteEmails.filter(email => email !== emailToRemove))
+  }
+
   const handleSendInvite = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!inviteEmail.trim()) return
+    const hasEmailInvites = inviteEmails.length > 0
+    const hasUserInvites = selectedUsers.length > 0
+
+    if (!hasEmailInvites && !hasUserInvites) return
 
     setIsInviting(true)
     setError("")
@@ -86,24 +126,63 @@ export default function TripInvitePage({ params }: { params: Promise<{ id: strin
 
     try {
       const resolvedParams = await params
-      const response = await fetch(`/api/trips/${resolvedParams.id}/invite`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: inviteEmail.trim() }),
-      })
+      const results = []
 
-      const data = await response.json()
+      // Send invitations to selected users
+      for (const user of selectedUsers) {
+        const response = await fetch(`/api/trips/${resolvedParams.id}/invite`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: user.email }),
+        })
 
-      if (response.ok) {
-        setSuccess("Invitation sent successfully!")
-        setInviteEmail("")
-        // Refresh invitations list
-        await fetchTripData(resolvedParams.id)
-      } else {
-        setError(data.error || "Failed to send invitation")
+        if (response.ok) {
+          results.push({ user: user.name || user.email, success: true })
+        } else {
+          const data = await response.json()
+          results.push({ user: user.name || user.email, success: false, error: data.error })
+        }
       }
+
+      // Send invitations to email addresses
+      for (const email of inviteEmails) {
+        const response = await fetch(`/api/trips/${resolvedParams.id}/invite`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: email }),
+        })
+
+        if (response.ok) {
+          results.push({ user: email, success: true })
+        } else {
+          const data = await response.json()
+          results.push({ user: email, success: false, error: data.error })
+        }
+      }
+
+      // Show results
+      const successful = results.filter(r => r.success)
+      const failed = results.filter(r => !r.success)
+
+      if (successful.length > 0) {
+        setSuccess(`Successfully sent ${successful.length} invitation(s)!`)
+      }
+      
+      if (failed.length > 0) {
+        setError(`Failed to send ${failed.length} invitation(s): ${failed.map(f => f.error).join(', ')}`)
+      }
+
+      // Clear form
+      setInviteEmails([])
+      setNewEmail("")
+      setSelectedUsers([])
+      
+      // Refresh invitations list
+      await fetchTripData(resolvedParams.id)
     } catch (error) {
       console.error("Error sending invitation:", error)
       setError("Failed to send invitation")
@@ -113,7 +192,7 @@ export default function TripInvitePage({ params }: { params: Promise<{ id: strin
   }
 
   const handleDeleteInvite = async (inviteId: string) => {
-    if (!confirm("Are you sure you want to delete this invitation?")) return
+    if (!confirm("Are you sure you want to cancel this invitation?")) return
 
     try {
       const resolvedParams = await params
@@ -123,13 +202,13 @@ export default function TripInvitePage({ params }: { params: Promise<{ id: strin
 
       if (response.ok) {
         setInvitations(invitations.filter(invite => invite.id !== inviteId))
-        setSuccess("Invitation deleted successfully!")
+        setSuccess("Invitation cancelled successfully!")
       } else {
-        setError("Failed to delete invitation")
+        setError("Failed to cancel invitation")
       }
     } catch (error) {
-      console.error("Error deleting invitation:", error)
-      setError("Failed to delete invitation")
+      console.error("Error cancelling invitation:", error)
+      setError("Failed to cancel invitation")
     }
   }
 
@@ -195,28 +274,146 @@ export default function TripInvitePage({ params }: { params: Promise<{ id: strin
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Send New Invitation</h2>
             
-            <form onSubmit={handleSendInvite} className="space-y-4">
+            <form onSubmit={handleSendInvite} className="space-y-6">
+              {/* User Search */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Search for Users
                 </label>
-                <input
-                  type="email"
-                  id="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  placeholder="Enter email address"
-                  className="w-full px-3 py-2 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
+                <UserSearch
+                  onUserSelect={handleUserSelect}
+                  tripId={trip.id}
+                  placeholder="Search by name or email..."
+                  className="mb-3"
                 />
+                <p className="text-sm text-gray-500">
+                  Search for existing users to invite them directly
+                </p>
+              </div>
+
+              {/* Selected Users */}
+              {selectedUsers.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Selected Users ({selectedUsers.length})
+                  </label>
+                  <div className="space-y-2">
+                    {selectedUsers.map((user) => (
+                      <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span className="text-blue-600 font-medium text-sm">
+                              {(user.name || user.email).charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {user.name || 'No name'}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              {user.email}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={() => handleRemoveUser(user.id)}
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 border-red-300 hover:bg-red-50"
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Divider */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">Or invite by email</span>
+                </div>
+              </div>
+
+              {/* Email Input */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email Addresses
+                </label>
+                <div className="flex space-x-2 mb-3">
+                  <input
+                    type="email"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddEmail())}
+                    placeholder="Enter email(s) - separate multiple emails with commas"
+                    className="flex-1 px-3 py-2 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleAddEmail}
+                    disabled={!newEmail.trim()}
+                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md disabled:opacity-50"
+                  >
+                    Add
+                  </Button>
+                </div>
+                
+                {/* Selected Emails */}
+                {inviteEmails.length > 0 && (
+                  <div className="space-y-2 mb-3">
+                    {inviteEmails.map((email) => (
+                      <div key={email} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                        <span className="text-gray-900">{email}</span>
+                        <Button
+                          type="button"
+                          onClick={() => handleRemoveEmail(email)}
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 border-red-300 hover:bg-red-50"
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                <p className="text-sm text-gray-500">
+                  Use this for people who don&apos;t have an account yet. You can enter multiple email addresses separated by commas.
+                </p>
               </div>
               
+              {/* Summary */}
+              {(selectedUsers.length > 0 || inviteEmails.length > 0) && (
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                  <h3 className="text-sm font-medium text-blue-900 mb-2">Invitation Summary</h3>
+                  <div className="space-y-1">
+                    {selectedUsers.length > 0 && (
+                      <p className="text-sm text-blue-800">
+                        <span className="font-medium">{selectedUsers.length}</span> registered user(s): {selectedUsers.map(u => u.name || u.email).join(', ')}
+                      </p>
+                    )}
+                    {inviteEmails.length > 0 && (
+                      <p className="text-sm text-blue-800">
+                        <span className="font-medium">{inviteEmails.length}</span> email invitation(s): {inviteEmails.join(', ')}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <Button
                 type="submit"
-                disabled={isInviting || !inviteEmail.trim()}
+                disabled={isInviting || (inviteEmails.length === 0 && selectedUsers.length === 0)}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md disabled:opacity-50"
               >
-                {isInviting ? "Sending..." : "Send Invitation"}
+                {isInviting ? "Sending..." : `Send ${selectedUsers.length + inviteEmails.length} Invitation(s)`}
               </Button>
             </form>
 
@@ -286,7 +483,7 @@ export default function TripInvitePage({ params }: { params: Promise<{ id: strin
                           size="sm"
                           className="text-red-600 border-red-300 hover:bg-red-50"
                         >
-                          Delete
+                          Cancel
                         </Button>
                       )}
                     </div>

@@ -12,6 +12,9 @@ const ITEM_TYPES = [
   { value: "EVENT", label: "Event", icon: "🎫" },
   { value: "TRANSPORT", label: "Transport", icon: "🚗" },
   { value: "ACTIVITY", label: "Activity", icon: "🎯" },
+  { value: "FOOD", label: "Food", icon: "🍽️" },
+  { value: "SHOPPING", label: "Shopping", icon: "🛍️" },
+  { value: "OTHER", label: "Other", icon: "📅" },
 ]
 
 const CURRENCIES = [

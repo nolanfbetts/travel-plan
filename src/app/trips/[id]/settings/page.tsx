@@ -3,8 +3,20 @@
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import Link from "next/link"
 import TripLayout from "@/components/TripLayout"
 import { Button } from "@/components/ui/button"
+
+interface TripMember {
+  id: string
+  role: string
+  joinedAt: string
+  user: {
+    id: string
+    name: string | null
+    email: string
+  }
+}
 
 interface Trip {
   id: string
@@ -17,6 +29,7 @@ interface Trip {
     name: string | null
     email: string
   }
+  members: TripMember[]
 }
 
 export default function TripSettingsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -26,6 +39,7 @@ export default function TripSettingsPage({ params }: { params: Promise<{ id: str
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isRemovingMember, setIsRemovingMember] = useState<string | null>(null)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   
@@ -99,6 +113,37 @@ export default function TripSettingsPage({ params }: { params: Promise<{ id: str
       setError("Failed to update trip")
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handleRemoveMember = async (memberId: string, memberName: string) => {
+    if (!confirm(`Are you sure you want to remove ${memberName} from this trip? They will lose access to all trip data.`)) {
+      return
+    }
+
+    setIsRemovingMember(memberId)
+    setError("")
+    setSuccess("")
+
+    try {
+      const resolvedParams = await params
+      const response = await fetch(`/api/trips/${resolvedParams.id}/members/${memberId}`, {
+        method: "DELETE",
+      })
+
+      if (response.ok) {
+        // Refresh trip data to get updated member list
+        await fetchTripData(resolvedParams.id)
+        setSuccess(`${memberName} has been removed from the trip`)
+      } else {
+        const data = await response.json()
+        setError(data.error || "Failed to remove member")
+      }
+    } catch (error) {
+      console.error("Error removing member:", error)
+      setError("Failed to remove member")
+    } finally {
+      setIsRemovingMember(null)
     }
   }
 
@@ -334,6 +379,109 @@ export default function TripSettingsPage({ params }: { params: Promise<{ id: str
                     <p className="text-gray-900">{trip.endDate ? new Date(trip.endDate).toLocaleDateString() : "Not set"}</p>
                   </div>
                 </div>
+              </div>
+            )}
+          </div>
+
+          {/* Member Management */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Trip Members</h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  {trip.members.length + 1} member{trip.members.length + 1 !== 1 ? 's' : ''} total
+                </p>
+              </div>
+              <Link href={`/trips/${trip.id}/invite`}>
+                <Button variant="outline" className="text-blue-600 border-blue-300 hover:bg-blue-50">
+                  Invite More
+                </Button>
+              </Link>
+            </div>
+            
+            {trip.members.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                  </svg>
+                </div>
+                <p className="text-gray-500">No members yet</p>
+                <p className="text-sm text-gray-400 mt-1">Invite people to join your trip</p>
+                <Link href={`/trips/${trip.id}/invite`}>
+                  <Button className="mt-3 bg-blue-600 hover:bg-blue-700 text-white">
+                    Invite People
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Creator */}
+                <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <span className="text-blue-600 font-medium text-sm">
+                        {(trip.creator.name || trip.creator.email).charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {trip.creator.name || 'No name'}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {trip.creator.email}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                      Creator
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      Cannot be removed
+                    </span>
+                  </div>
+                </div>
+
+                {/* Members */}
+                {trip.members
+                  .filter(member => member.user.id !== trip.creator.id) // Filter out the creator
+                  .map((member) => (
+                    <div key={member.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                          <span className="text-gray-600 font-medium text-sm">
+                            {(member.user.name || member.user.email).charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {member.user.name || 'No name'}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {member.user.email}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            Joined {new Date(member.joinedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+                          {member.role}
+                        </span>
+                        <Button
+                          onClick={() => handleRemoveMember(member.id, member.user.name || member.user.email)}
+                          disabled={isRemovingMember === member.id}
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 border-red-300 hover:bg-red-50"
+                        >
+                          {isRemovingMember === member.id ? "Removing..." : "Remove"}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
               </div>
             )}
           </div>
