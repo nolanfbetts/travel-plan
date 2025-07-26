@@ -49,6 +49,7 @@ export default function MobileCalendar({ items, tripId, tripStartDate, tripEndDa
       case 'flight':
         return '✈️'
       case 'hotel':
+      case 'accommodation':
         return '🏨'
       case 'event':
         return '🎫'
@@ -56,6 +57,12 @@ export default function MobileCalendar({ items, tripId, tripStartDate, tripEndDa
         return '🚗'
       case 'activity':
         return '🎯'
+      case 'food':
+        return '🍽️'
+      case 'shopping':
+        return '🛍️'
+      case 'other':
+        return '📅'
       default:
         return '📅'
     }
@@ -66,6 +73,7 @@ export default function MobileCalendar({ items, tripId, tripStartDate, tripEndDa
       case 'flight':
         return 'bg-blue-500'
       case 'hotel':
+      case 'accommodation':
         return 'bg-purple-500'
       case 'event':
         return 'bg-green-500'
@@ -73,6 +81,12 @@ export default function MobileCalendar({ items, tripId, tripStartDate, tripEndDa
         return 'bg-yellow-500'
       case 'activity':
         return 'bg-pink-500'
+      case 'food':
+        return 'bg-orange-500'
+      case 'shopping':
+        return 'bg-indigo-500'
+      case 'other':
+        return 'bg-gray-500'
       default:
         return 'bg-gray-500'
     }
@@ -83,6 +97,7 @@ export default function MobileCalendar({ items, tripId, tripStartDate, tripEndDa
       case 'flight':
         return 'bg-blue-50 text-blue-700 border-blue-200'
       case 'hotel':
+      case 'accommodation':
         return 'bg-purple-50 text-purple-700 border-purple-200'
       case 'event':
         return 'bg-green-50 text-green-700 border-green-200'
@@ -90,6 +105,12 @@ export default function MobileCalendar({ items, tripId, tripStartDate, tripEndDa
         return 'bg-yellow-50 text-yellow-700 border-yellow-200'
       case 'activity':
         return 'bg-pink-50 text-pink-700 border-pink-200'
+      case 'food':
+        return 'bg-orange-50 text-orange-700 border-orange-200'
+      case 'shopping':
+        return 'bg-indigo-50 text-indigo-700 border-indigo-200'
+      case 'other':
+        return 'bg-gray-50 text-gray-700 border-gray-200'
       default:
         return 'bg-gray-50 text-gray-700 border-gray-200'
     }
@@ -337,7 +358,7 @@ export default function MobileCalendar({ items, tripId, tripStartDate, tripEndDa
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">No events scheduled for today</h3>
           <p className="text-gray-500 mb-6">Add your first event to get started</p>
-          <Link href={`/trips/${tripId}/items/new`}>
+          <Link href={`/trips/${tripId}/itinerary`}>
             <Button className="bg-blue-600 hover:bg-blue-700">
               Add New Event
             </Button>
@@ -524,13 +545,30 @@ export default function MobileCalendar({ items, tripId, tripStartDate, tripEndDa
       {viewType === 'day' && renderDayView()}
 
       {/* Legend */}
-      <div className="px-4 py-4 border-t border-gray-200">
-        <h4 className="text-sm font-medium text-gray-900 mb-3">Legend</h4>
+      <div className="px-4 py-4 border-t border-gray-200 bg-gray-50">
+        <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+          <svg className="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+          </svg>
+          Event Categories
+        </h4>
         <div className="grid grid-cols-2 gap-3">
-          {['Flight', 'Hotel', 'Event', 'Transport', 'Activity'].map(type => (
-            <div key={type} className="flex items-center space-x-2">
-              <div className={`w-3 h-3 rounded-full ${getCategoryColor(type)}`}></div>
-              <span className="text-sm text-gray-600">{type}</span>
+          {[
+            { type: 'Flight', label: 'Flight', icon: '✈️' },
+            { type: 'Hotel', label: 'Hotel', icon: '🏨' },
+            { type: 'Event', label: 'Event', icon: '🎫' },
+            { type: 'Transport', label: 'Transport', icon: '🚗' },
+            { type: 'Activity', label: 'Activity', icon: '🎯' },
+            { type: 'Food', label: 'Food', icon: '🍽️' },
+            { type: 'Shopping', label: 'Shopping', icon: '🛍️' },
+            { type: 'Other', label: 'Other', icon: '📅' }
+          ].map(({ type, label, icon }) => (
+            <div key={type} className="flex items-center space-x-2 p-2 rounded-lg hover:bg-white transition-colors">
+              <div className="flex items-center space-x-1">
+                <span className="text-sm">{icon}</span>
+                <div className={`w-2 h-2 rounded-full ${getCategoryColor(type)}`}></div>
+              </div>
+              <span className="text-sm font-medium text-gray-700">{label}</span>
             </div>
           ))}
         </div>
@@ -539,7 +577,7 @@ export default function MobileCalendar({ items, tripId, tripStartDate, tripEndDa
       {/* Quick Actions */}
       <div className="px-4 py-4 border-t border-gray-200">
         <div className="flex justify-center">
-          <Link href={`/trips/${tripId}/items/new`}>
+          <Link href={`/trips/${tripId}/itinerary`}>
             <Button className="w-full bg-blue-600 hover:bg-blue-700">
               Add New Event
             </Button>

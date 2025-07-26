@@ -5,6 +5,7 @@ A modern web application for collaborative travel planning with real-time task m
 ## Features
 
 - **Trip Management**: Create and manage travel trips with multiple members
+- **User Search & Invitations**: Search for existing users and send invitations to multiple people at once
 - **Collaborative Tasks**: Assign tasks to trip members with categories, priorities, and due dates
 - **Real-time Updates**: Live task status updates and collaborative editing
 - **Authentication**: Secure login with Google OAuth via NextAuth
@@ -19,6 +20,37 @@ A modern web application for collaborative travel planning with real-time task m
 - **Authentication**: NextAuth.js with Google OAuth
 - **Email**: Resend for email notifications
 - **Deployment**: Vercel with GitHub Actions CI/CD
+
+## User Search & Invitation System
+
+The application includes a comprehensive user search and invitation system:
+
+### User Search
+- **Real-time Search**: Search for users by name or email with instant results
+- **Smart Filtering**: Automatically excludes users already in the trip or with pending invitations
+- **Keyboard Navigation**: Full keyboard support with arrow keys, enter, and escape
+- **Debounced Search**: Optimized search with 300ms debouncing to reduce API calls
+
+### Multi-User Invitations
+- **Bulk Invitations**: Send invitations to multiple users simultaneously
+- **Mixed Invitations**: Invite both registered users and non-registered email addresses
+- **Email Support**: Support for comma-separated email addresses for easy bulk input
+- **Invitation Management**: View, track, and manage all sent invitations
+- **Invitation Cancellation**: Cancel pending invitations before they're accepted
+- **Duplicate Prevention**: Automatic prevention of duplicate invitations
+
+### Member Management
+- **User Removal**: Trip creators can remove members from trips
+- **Member Overview**: View all trip members with join dates and roles
+- **Creator Protection**: Trip creators cannot be removed from their own trips
+- **Member Count**: Track total number of trip members
+
+### API Endpoints
+- `GET /api/users/search` - Search for users with optional trip filtering
+- `POST /api/trips/[id]/invite` - Send invitations to users or email addresses
+- `GET /api/trips/[id]/invite` - Get all invitations for a trip
+- `DELETE /api/trips/[id]/invite/[inviteId]` - Cancel a pending invitation
+- `DELETE /api/trips/[id]/members/[memberId]` - Remove a member from the trip
 
 ## Getting Started
 
