@@ -87,10 +87,10 @@ export default function TripMobileNav({
       )}
 
       {/* Mobile Sidebar */}
-      <div className={`md:hidden fixed top-0 left-0 z-50 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`md:hidden fixed top-0 left-0 z-50 h-full w-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
             <div className="flex items-center">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
                 <span className="text-white font-bold text-lg">T</span>
@@ -108,7 +108,7 @@ export default function TripMobileNav({
           </div>
 
           {/* Trip Info */}
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-4 border-b border-gray-200 flex-shrink-0">
             <Link href="/dashboard" className="flex items-center text-blue-600 hover:text-blue-500 mb-4">
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -130,8 +130,8 @@ export default function TripMobileNav({
             </div>
           </div>
 
-          {/* Navigation Menu */}
-          <nav className="flex-1 p-4">
+          {/* Navigation Menu - Scrollable */}
+          <nav className="flex-1 p-4 overflow-y-auto">
             <div className="space-y-2">
               {navigationTabs.map((tab) => (
                 <button
@@ -156,7 +156,7 @@ export default function TripMobileNav({
           </nav>
 
           {/* Logout Button */}
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-gray-200 flex-shrink-0">
             <Button
               variant="outline"
               onClick={() => {
