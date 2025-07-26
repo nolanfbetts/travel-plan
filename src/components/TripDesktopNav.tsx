@@ -12,7 +12,6 @@ interface TripDesktopNavProps {
   tripEndDate?: string | null
   tripCreator: string
   currentTab?: string
-  onTabChange: (tab: string) => void
 }
 
 export default function TripDesktopNav({ 
@@ -22,8 +21,7 @@ export default function TripDesktopNav({
   tripStartDate, 
   tripEndDate, 
   tripCreator, 
-  currentTab = "overview",
-  onTabChange 
+  currentTab = "overview"
 }: TripDesktopNavProps) {
   const { data: session } = useSession()
 
@@ -40,6 +38,13 @@ export default function TripDesktopNav({
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString()
+  }
+
+  const getTabHref = (tabId: string) => {
+    if (tabId === 'overview') {
+      return `/trips/${tripId}`
+    }
+    return `/trips/${tripId}/${tabId}`
   }
 
   return (
@@ -70,9 +75,9 @@ export default function TripDesktopNav({
         {/* Navigation Menu */}
         <nav className="space-y-2">
           {navigationTabs.map((tab) => (
-            <button
+            <Link
               key={tab.id}
-              onClick={() => onTabChange(tab.id)}
+              href={getTabHref(tab.id)}
               className={`w-full flex items-center px-3 py-2 text-sm rounded-lg transition-colors ${
                 currentTab === tab.id
                   ? 'text-blue-600 bg-blue-50'
@@ -83,7 +88,7 @@ export default function TripDesktopNav({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.icon} />
               </svg>
               {tab.label}
-            </button>
+            </Link>
           ))}
         </nav>
       </div>

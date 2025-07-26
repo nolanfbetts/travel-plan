@@ -14,7 +14,6 @@ interface TripLayoutProps {
   tripEndDate?: string | null
   tripCreator: string
   currentTab?: string
-  onTabChange: (tab: string) => void
 }
 
 export default function TripLayout({ 
@@ -25,8 +24,7 @@ export default function TripLayout({
   tripStartDate, 
   tripEndDate, 
   tripCreator, 
-  currentTab = "overview",
-  onTabChange 
+  currentTab = "overview"
 }: TripLayoutProps) {
   const { data: session } = useSession()
 
@@ -41,7 +39,6 @@ export default function TripLayout({
         tripEndDate={tripEndDate}
         tripCreator={tripCreator}
         currentTab={currentTab}
-        onTabChange={onTabChange}
       />
       
       {/* Mobile Navigation */}
@@ -53,7 +50,6 @@ export default function TripLayout({
         tripEndDate={tripEndDate}
         tripCreator={tripCreator}
         currentTab={currentTab}
-        onTabChange={onTabChange}
       />
 
       {/* Main Content */}
