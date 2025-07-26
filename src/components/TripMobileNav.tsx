@@ -13,7 +13,6 @@ interface TripMobileNavProps {
   tripEndDate?: string | null
   tripCreator: string
   currentTab?: string
-  onTabChange: (tab: string) => void
 }
 
 export default function TripMobileNav({ 
@@ -23,8 +22,7 @@ export default function TripMobileNav({
   tripStartDate, 
   tripEndDate, 
   tripCreator, 
-  currentTab = "overview",
-  onTabChange 
+  currentTab = "overview"
 }: TripMobileNavProps) {
   const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
@@ -42,6 +40,13 @@ export default function TripMobileNav({
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString()
+  }
+
+  const getTabHref = (tabId: string) => {
+    if (tabId === 'overview') {
+      return `/trips/${tripId}`
+    }
+    return `/trips/${tripId}/${tabId}`
   }
 
   return (
@@ -134,12 +139,10 @@ export default function TripMobileNav({
           <nav className="flex-1 p-4 overflow-y-auto">
             <div className="space-y-2">
               {navigationTabs.map((tab) => (
-                <button
+                <Link
                   key={tab.id}
-                  onClick={() => {
-                    onTabChange(tab.id)
-                    setIsOpen(false)
-                  }}
+                  href={getTabHref(tab.id)}
+                  onClick={() => setIsOpen(false)}
                   className={`w-full flex items-center px-3 py-3 rounded-lg transition-colors ${
                     currentTab === tab.id
                       ? 'text-blue-600 bg-blue-50'
@@ -150,7 +153,7 @@ export default function TripMobileNav({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.icon} />
                   </svg>
                   <span className="font-medium">{tab.label}</span>
-                </button>
+                </Link>
               ))}
             </div>
           </nav>

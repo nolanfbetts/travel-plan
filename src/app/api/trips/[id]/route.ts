@@ -66,6 +66,74 @@ export async function GET(
   }
 }
 
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { id } = await params
+    const body = await request.json()
+    const { name, description, startDate, endDate } = body
+
+    // Check if trip exists and user is the creator
+    const trip = await prisma.trip.findFirst({
+      where: {
+        id: id,
+        creatorId: session.user.id
+      }
+    })
+
+    if (!trip) {
+      return NextResponse.json({ error: "Trip not found or you don't have permission to edit it" }, { status: 404 })
+    }
+
+    // Update the trip
+    const updatedTrip = await prisma.trip.update({
+      where: { id: id },
+      data: {
+        name: name || trip.name,
+        description: description !== undefined ? description : trip.description,
+        startDate: startDate ? new Date(startDate) : trip.startDate,
+        endDate: endDate ? new Date(endDate) : trip.endDate,
+      },
+      include: {
+        creator: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        },
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true
+              }
+            }
+          }
+        }
+      }
+    })
+
+    return NextResponse.json({ trip: updatedTrip })
+  } catch (error) {
+    console.error("Error updating trip:", error)
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    )
+  }
+}
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

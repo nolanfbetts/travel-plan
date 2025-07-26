@@ -246,8 +246,8 @@ export default function Calendar({ items, tripId, tripStartDate, tripEndDate }: 
     <div className="p-6">
       {/* Day Headers */}
       <div className="grid grid-cols-7 gap-1 mb-2">
-        {dayNames.map(day => (
-          <div key={day} className="text-center text-xs sm:text-sm font-medium text-gray-500 py-2">
+        {dayNames.map((day, index) => (
+          <div key={index} className="text-center text-xs sm:text-sm font-medium text-gray-500 py-2">
             {day.slice(0, 3)}
           </div>
         ))}
